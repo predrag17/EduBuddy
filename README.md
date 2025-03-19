@@ -1,11 +1,6 @@
 # EduBuddy
 
-EduBuddy is an innovative web application designed to assist students in analyzing and processing study materials.
-The platform leverages AI to automatically generate questions and answers like a test, making learning more interactive and efficient. 
-Users can upload presentations, books, or notes (PDF), and the system will analyze the content to create interactive questions, explanations, and personalized recommendations.
-EduBuddy also acts as a chatbot, serving as a helpful and friendly companion for students. With its conversational interface, 
-EduBuddy feels like a supportive friend who is always ready to assist with study-related queries, provide explanations, and guide students through their learning journey. 
-Whether it's helping with difficult concepts or offering tailored advice, EduBuddy makes studying feel like a more engaging and enjoyable experience.
+EduBuddy is an innovative web application designed to assist students in analyzing and processing study materials. The platform leverages AI to automatically generate questions and answers like a test, making learning more interactive and efficient. Users can upload presentations, books, or notes (PDF), and the system will analyze the content to create interactive questions, explanations, and personalized recommendations. EduBuddy also acts as a chatbot, serving as a helpful and friendly companion for students. With its conversational interface, EduBuddy feels like a supportive friend who is always ready to assist with study-related queries, provide explanations, and guide students through their learning journey. Whether it's helping with difficult concepts or offering tailored advice, EduBuddy makes studying feel like a more engaging and enjoyable experience. Additionally, it features accessibility options like text-to-speech for students with visual impairments or dyslexia, ensuring everyone can benefit from its educational tools.
 
 ## Features
 
@@ -14,8 +9,6 @@ Whether it's helping with difficult concepts or offering tailored advice, EduBud
 - **Interactive AI Tutor**: Allows users to interact with an AI tutor as a friendly companion, ask questions, and receive relevant answers.
 - **Accessibility Features**:
   - Converts text to speech for students with visual impairments or dyslexia.
-  - Simplifies complex text into an easy-to-understand format.
-  - Explains terms with simple examples.
 
 ## Tech Stack
 EduBuddy is built using modern web technologies to ensure scalability, performance, and flexibility.
