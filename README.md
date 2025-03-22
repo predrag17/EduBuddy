@@ -29,6 +29,48 @@ EduBuddy will have two types of users:
 6. **View and Manage My Uploaded Materials (User, Admin)**: Easily view, manage, update, or delete your uploaded study materials to keep your knowledge base structured and up to date.
 7. **EduBuddy-Powered Text-to-Speech (User, Admin)**: Convert study materials into natural-sounding audio, allowing you to listen and learn on the go.
 
+---
+
+## Pages and Functionalities
+
+1. **Home Page:**
+- Overview of the platform and its features.
+- Option to browse and access interactive AI tutor and study materials.
+- Display of recent activities, including the latest uploaded materials and question generation results.
+
+2. **Interactive AI Tutor Page:**
+- Engage with the AI-driven tutor that analyzes PDFs, extracts key insights, and provides answers.
+- Options to interact with EduBuddy-chatbot for personalized learning assistance.
+
+3. **Question Generation Page:**
+- Automatically generates questions from uploaded study materials.
+- Users can download a test based on the questions and view the results.
+
+4. **Upload Materials Page:**
+- Allows users to upload study materials (PDFs) to build a knowledge base.
+- Option for both users and admins to upload relevant content for enhanced AI responses.
+
+5. **Manage and View Materials Page (Admin):**
+- Admin users can view, manage, update, or delete study materials.
+- Prevent irrelevant content uploads to maintain a refined knowledge base for accurate answers.
+
+6. **My Materials Page (User, Admin):**
+- Displays the uploaded study materials of the logged-in user or admin.
+- Options to easily manage, update, or delete personal materials and keep the knowledge base up to date.
+
+7. **EduBuddy-Powered Text-to-Speech Page:**
+- Convert uploaded study materials into audio format for listening on the go.
+- Available for both users and admins to utilize the text-to-speech functionality.
+
+8. **Login Page:**
+- For users who already have an account to securely log in and access their study materials.
+- Users can also access the registration page if they haven't created an account yet.
+
+9. **Register Page:**
+- For new users to create an account and gain access to personalized study tools and resources.
+
+---
+
 ## Tech Stack
 EduBuddy is built using modern web technologies to ensure scalability, performance, and flexibility.
 
@@ -45,6 +87,8 @@ EduBuddy is built using modern web technologies to ensure scalability, performan
 - **LangChain**: Implements AI-driven document analysis and question generation.
 - **ChromaDB**: Stores vector embeddings for efficient search and retrieval of PDF content.
 - **Text-to-Speech**: Enables accessibility features like speech synthesis and text simplification.
+
+---
 
 ## Installation & Setup
 
