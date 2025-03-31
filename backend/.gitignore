@@ -9,3 +9,9 @@ venv.bak/
 
 # idea
 .idea/
+
+# data
+data/
+
+# chroma
+chroma/
