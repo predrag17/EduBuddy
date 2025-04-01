@@ -130,7 +130,7 @@ cd ../frontend
 npm install
 
 # Start the Next.js development server
-npm start
+npm run dev
 ```
 
 EduBuddy aims to revolutionize learning by making study materials more interactive and accessible for everyone.
