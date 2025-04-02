@@ -1,14 +1,15 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Sparkles, Cpu, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "./ui/card";
 import { motion } from "framer-motion";
+import UserAuthStatus from "./user-auth-status";
 
 export default function Home() {
   return (
     <div className="min-h-screen min-w-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
+      <UserAuthStatus />
+
       {/* Background Animation */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <motion.div
