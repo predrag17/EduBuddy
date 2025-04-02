@@ -56,7 +56,6 @@ def register_user(request):
 @api_view(['POST'])
 def user_login(request):
     if request.method == 'POST':
-        print(request.data)
         email = request.data.get('email')
         password = request.data.get('password')
 
@@ -72,7 +71,7 @@ def user_login(request):
 
         if user:
             token, _ = Token.objects.get_or_create(user=user)
-            return Response({'isAuthenticated': False, 'user': user}, status=status.HTTP_200_OK)
+            return Response({'token': token.key}, status=status.HTTP_200_OK)
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
