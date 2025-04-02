@@ -22,3 +22,14 @@ export const register = async (
     throw error;
   }
 };
+
+export const login = async (email: string, password: string) => {
+  try {
+    const response = await axiosInstance.post("/login", { email, password });
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error while login", error);
+    throw error;
+  }
+};
