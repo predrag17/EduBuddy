@@ -59,7 +59,7 @@ export default function Home() {
         <Link to="/quiz">
           <Button
             variant="default"
-            className="flex items-center gap-2 w-full sm:w-auto justify-center bg-indigo-500 hover:bg-indigo-600 text-white"
+            className="flex items-center gap-2 w-full sm:w-auto justify-center border-indigo-400 text-indigo-400 hover:bg-indigo-500 hover:text-white"
           >
             <Cpu className="w-5 h-5" /> Quiz
           </Button>
