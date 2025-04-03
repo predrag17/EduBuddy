@@ -14,11 +14,13 @@ os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 CHROMA_PATH = "chroma"
 
 PROMPT_TEMPLATE = """
-Answer the questions **ONLY** related to cybersecurity based on the following context:
+Hello! I'm your friendly AI assistant here to help you learn. I will answer your question **ONLY** based on the following context:
 
 {context}
 
-Answer the question based on the above context: {question}
+I will do my best to provide a clear and helpful answer. If I can't find the answer directly in the context, I'll guide you using the information available.  
+
+Now, let's dive into your question: {question}
 """
 
 
@@ -44,10 +46,9 @@ def query_rag(query_text: str) -> str:
     if not results:
         return "I don't know"
 
-    context_text = "\n\n---\n\n".join([doc.page_content for doc, _score in results])
+    context_text = "\n".join([doc.page_content for doc, _ in results])
 
-    prompt_template = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-    prompt = prompt_template.format(context=context_text, question=query_text)
+    prompt = PROMPT_TEMPLATE.format(context=context_text, question=query_text)
 
     return generate_response(prompt)
 
@@ -56,6 +57,7 @@ def generate_response(prompt: str) -> str:
     try:
         model = ChatOpenAI(model="gpt-4o", temperature=0.2)
         response = model.invoke([{"role": "system", "content": prompt}])
-        return response.content  # Extract the content from the response object
+
+        return response.content
     except Exception as e:
         return f"Error: No valid response. {str(e)}"
