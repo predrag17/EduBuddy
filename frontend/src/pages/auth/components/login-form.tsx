@@ -1,3 +1,4 @@
+import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -20,12 +21,13 @@ import { z } from "zod";
 
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { setUser } = useAuth();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
@@ -34,16 +36,15 @@ const LoginForm = () => {
     setIsLoading(true);
 
     try {
-      const response = await login(values.email, values.password);
-
-      localStorage.setItem("token", response.token);
+      const response = await login(values.username, values.password);
+      setUser(response.user);
       toast.success("Successfully logged in. Welcome!");
       setTimeout(() => {
         navigate("/");
-      }, 2000);
+      }, 1500);
     } catch (error: any) {
       console.error("Error while login", error);
-      toast.error("Unable to login, try again!");
+      toast.error("Invalid credentials, try again!");
     } finally {
       setIsLoading(false);
     }
@@ -66,15 +67,15 @@ const LoginForm = () => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="email"
+              name="username"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      type="email"
-                      placeholder="example@example.com"
+                      type="username"
+                      placeholder="john2003"
                       disabled={isLoading}
                     />
                   </FormControl>

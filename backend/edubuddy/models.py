@@ -11,6 +11,3 @@ class EduBuddyUser(AbstractUser):
     password = models.CharField(max_length=255)
 
     REQUIRED_FIELDS = ["first_name", "last_name"]
-
-    def __str__(self):
-        return self.email

@@ -49,7 +49,7 @@ export default function RegisterForm() {
       toast.success("Successfully registered. Login into your account!");
       setTimeout(() => {
         navigate("/login");
-      }, 2000);
+      }, 1500);
     } catch (error: any) {
       console.log("Error registering user.", error);
       toast.error("There's an error registering");

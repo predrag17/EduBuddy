@@ -33,8 +33,8 @@ export const RegisterSchema = z
   });
 
 export const LoginSchema = z.object({
-  email: z.string().email({
-    message: "Емеил адресата е задолжителна",
+  username: z.string().min(1, {
+    message: "Корисничко име е задолжително",
   }),
   password: z.string().min(1, {
     message: "Лозинката е задолжителна",

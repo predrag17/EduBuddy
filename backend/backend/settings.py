@@ -61,6 +61,11 @@ MIDDLEWARE = [
 ]
 
 # Allow all origins for development (for production, be more specific)
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+]
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 # Or you can specify allowed origins:
 
@@ -140,10 +145,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # 'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework.authentication.BasicAuthentication',
         'knox.auth.TokenAuthentication',
-    ]
+    ],
 }
 
 AUTH_USER_MODEL = "edubuddy.EduBuddyUser"
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
