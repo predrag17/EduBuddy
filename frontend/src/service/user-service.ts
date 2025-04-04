@@ -49,7 +49,7 @@ export const logout = async () => {
 export const authenticate = async () => {
   try {
     const response = await axiosInstance.get("/authenticate");
-
+    console.log(response.data);
     return response.data;
   } catch (error: any) {
     return null;
