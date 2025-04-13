@@ -1,7 +1,7 @@
 # edubuddy/serializers.py
 
 from rest_framework import serializers
-from .models import EduBuddyUser, Role
+from .models import EduBuddyUser, Role, Material
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -33,3 +33,17 @@ class UserSerializer(serializers.ModelSerializer):
             user.set_password(password)
         user.save()
         return user
+
+class MaterialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Material
+        fields = ['id', 'subject', 'description', 'file', 'uploaded_at', 'updated_at', 'user']
+        extra_kwargs = {
+            'file': {'required': True},
+            'user': {'read_only': True}
+        }
+
+    def validate_file(self, value):
+        if not value.name.endswith(('.pdf', '.docx', '.pptx')):
+            raise serializers.ValidationError("File type is not supported. Please upload a PDF, DOCX, or PPTX file.")
+        return value
