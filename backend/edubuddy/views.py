@@ -10,8 +10,8 @@ from rest_framework.views import APIView
 
 from knox.models import AuthToken
 
-from .models import EduBuddyUser
-from .serializers import UserSerializer
+from .models import EduBuddyUser, Material
+from .serializers import UserSerializer, MaterialSerializer
 from edubuddy.management.commands.query_data import query_rag
 
 
@@ -97,3 +97,44 @@ class AuthenticateUserView(APIView):
 
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+# Class-based view for CRUD operations on Material
+class MaterialView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    # Retrieve all materials
+    def get(self, request):
+        materials = Material.objects.filter(user=request.user)
+        serializer = MaterialSerializer(materials, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Create material
+    def post(self, request):
+        serializer = MaterialSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    # Update an existing material
+    def put(self, request, pk):
+        try:
+            material = Material.objects.get(pk=pk)
+        except Material.DoesNotExist:
+            raise NotFound(detail="Material not found.")
+
+        serializer = MaterialSerializer(material, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete a material
+    def delete(self, request, pk):
+        try:
+            material = Material.objects.get(pk=pk)
+            material.delete()
+            return Response({'message': 'Material deleted successfully.'}, status=status.HTTP_200_OK)
+        except Material.DoesNotExist:
+            raise NotFound(detail="Material not found.")
