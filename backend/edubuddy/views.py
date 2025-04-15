@@ -98,6 +98,7 @@ class AuthenticateUserView(APIView):
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 # Class-based view for CRUD operations on Material
 class MaterialView(APIView):
     permission_classes = [IsAuthenticated]
@@ -115,7 +116,6 @@ class MaterialView(APIView):
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
     # Update an existing material
     def put(self, request, pk):
