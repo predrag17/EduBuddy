@@ -20,6 +20,7 @@ class EduBuddyUser(AbstractUser):
 
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
+
 class Material(models.Model):
     CHOICES = (
         ('Primary School', 'Primary School'),
@@ -29,15 +30,15 @@ class Material(models.Model):
 
     subject = models.CharField(max_length=255)
     description = models.TextField()
-    file = models.FileField(upload_to='materials/')
+    file = models.FileField(upload_to='data/')
     is_processed = models.BooleanField(default=False)
     category = models.CharField(max_length=50, choices=CHOICES)
 
-    #Timestamp
+    # Timestamp
     uploaded_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
-    #Releationships
+
+    # Relationships
     user = models.ForeignKey(EduBuddyUser, on_delete=models.CASCADE)
 
     def __str__(self):
