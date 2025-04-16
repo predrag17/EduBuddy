@@ -10,11 +10,11 @@ EduBuddy is an innovative web application designed to assist students in analyzi
 
 ## User Roles
 
-EduBuddy will have two types of users:
+Platform EduBuddy will have two types of users:
 
 1. **Regular User**:
-    - College Students
-    - Middle School and Elementary School Students
+   - College Students
+   - Middle School and Elementary School Students
 2. **Admin User**
 
 ---
@@ -34,56 +34,69 @@ EduBuddy will have two types of users:
 ## Pages and Functionalities
 
 1. **Home Page:**
+
 - Overview of the platform and its features.
 - Option to browse and access interactive AI tutor and study materials.
 - Display of recent activities, including the latest uploaded materials and question generation results.
 
 2. **Interactive AI Tutor Page:**
+
 - Engage with the AI-driven tutor that analyzes PDFs, extracts key insights, and provides answers.
 - Options to interact with EduBuddy-chatbot for personalized learning assistance.
 
 3. **Question Generation Page:**
+
 - Automatically generates questions from uploaded study materials.
 - Users can download a test based on the questions and view the results.
 
 4. **Upload Materials Page:**
+
 - Allows users to upload study materials (PDFs) to build a knowledge base.
 - Option for both users and admins to upload relevant content for enhanced AI responses.
 
 5. **Manage and View Materials Page (Admin):**
+
 - Admin users can view, manage, update, or delete study materials.
 - Prevent irrelevant content uploads to maintain a refined knowledge base for accurate answers.
 
 6. **My Materials Page (User, Admin):**
+
 - Displays the uploaded study materials of the logged-in user or admin.
 - Options to easily manage, update, or delete personal materials and keep the knowledge base up to date.
 
 7. **EduBuddy-Powered Text-to-Speech Page:**
+
 - Convert uploaded study materials into audio format for listening on the go.
 - Available for both users and admins to utilize the text-to-speech functionality.
 
 8. **Login Page:**
+
 - For users who already have an account to securely log in and access their study materials.
 - Users can also access the registration page if they haven't created an account yet.
 
 9. **Register Page:**
+
 - For new users to create an account and gain access to personalized study tools and resources.
 
 ---
 
 ## Tech Stack
+
 EduBuddy is built using modern web technologies to ensure scalability, performance, and flexibility.
 
 ### Backend:
+
 - **Django Rest Framework**: Facilitates the creation of RESTful APIs, allowing seamless integration with the frontend.
 - **PostgreSQL**: Stores user information, study materials metadata, and AI-generated content.
 - **LangChain**: Manages AI interactions using Retrieval-Augmented Generation (RAG) to enhance response quality.
 - **ChromaDB**: A vector database used for storing and retrieving PDF embeddings efficiently.
 
 ### Frontend:
+
 - **React with TypeScript**: A powerful library and typing system for building an interactive and type-safe user interface.
 
 ### AI and Processing:
+
 - **LangChain**: Implements AI-driven document analysis and question generation.
 - **ChromaDB**: Stores vector embeddings for efficient search and retrieval of PDF content.
 - **Text-to-Speech**: Enables accessibility features like speech synthesis and text simplification.
@@ -93,15 +106,19 @@ EduBuddy is built using modern web technologies to ensure scalability, performan
 ## Installation & Setup
 
 ### Prerequisites
+
 Ensure you have the following installed on your system:
+
 - Python 3.9+
 - Node.js 16+
 - PostgreSQL
 
 ### Environment Variables
+
 Create a `.env` file in the `backend` and `frontend` directories and add necessary environment variables (e.g., database credentials, API keys).
 
 ### Backend Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/edubuddy.git
@@ -123,6 +140,7 @@ python manage.py runserver
 ```
 
 ### Frontend Setup
+
 ```bash
 cd ../frontend
 
@@ -134,4 +152,3 @@ npm run dev
 ```
 
 EduBuddy aims to revolutionize learning by making study materials more interactive and accessible for everyone.
-
