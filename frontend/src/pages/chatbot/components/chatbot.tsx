@@ -10,6 +10,7 @@ import { Sun, Moon, ArrowLeft } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Link } from "react-router-dom";
 import { createAnswer } from "@/service/chatbot-service";
+import UserAuthStatus from "@/components/user-auth-status";
 
 export default function Chatbot() {
   const [messages, setMessages] = useState<{ user: string; bot: string }[]>([]);
@@ -84,6 +85,8 @@ export default function Chatbot() {
         theme === "dark" ? "bg-black text-white" : "bg-white text-black"
       }`}
     >
+      <UserAuthStatus />
+
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute w-full h-full bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 " />
         <div className="absolute w-96 h-96 bg-blue-500/20 blur-3xl top-1/3 left-1/4 rounded-full" />

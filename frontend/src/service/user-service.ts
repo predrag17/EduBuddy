@@ -1,6 +1,12 @@
 import axiosInstance from "@/config/axiosInstance";
 import { removeToken, setToken } from "@/utils/auth";
 
+interface UpdateUserParams {
+  firstName: string;
+  lastName: string;
+  username: string;
+}
+
 export const register = async (
   username: string,
   firstName: string,
@@ -52,5 +58,24 @@ export const authenticate = async () => {
     return response.data;
   } catch (error: any) {
     return null;
+  }
+};
+
+export const updateUser = async ({
+  firstName,
+  lastName,
+  username,
+}: UpdateUserParams) => {
+  try {
+    const response = await axiosInstance.patch("/user/update", {
+      first_name: firstName,
+      last_name: lastName,
+      username,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error updating user", error);
+    throw error;
   }
 };

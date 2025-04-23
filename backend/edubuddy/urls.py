@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import MaterialView
+from .views import MaterialView, UpdateUserView
 
 urlpatterns = [
     path('chatbot/message', views.ChatbotMessageView.as_view(), name='chatbot_message'),
@@ -11,4 +11,6 @@ urlpatterns = [
     path('materials', MaterialView.as_view()),
     path('materials/update/<int:pk>', MaterialView.as_view()),
     path('materials/delete/<int:pk>', MaterialView.as_view()),
+    path('user/update', UpdateUserView.as_view(), name='update-user'),
+
 ]

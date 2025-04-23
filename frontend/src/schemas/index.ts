@@ -40,3 +40,18 @@ export const LoginSchema = z.object({
     message: "Лозинката е задолжителна",
   }),
 });
+
+export const UserSchema = z.object({
+  firstName: z.string().min(1, {
+    message: "Името е задолжително",
+  }),
+  lastName: z.string().min(1, {
+    message: "Презимето е задолжително",
+  }),
+  username: z.string().min(1, {
+    message: "Корисничкото име е задолжително",
+  }),
+  email: z.string().email({
+    message: "Емеил адресата е задолжителна и мора да биде валидна",
+  }),
+});

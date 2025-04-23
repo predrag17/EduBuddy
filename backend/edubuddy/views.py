@@ -138,3 +138,21 @@ class MaterialView(APIView):
             return Response({'message': 'Material deleted successfully.'}, status=status.HTTP_200_OK)
         except Material.DoesNotExist:
             raise NotFound(detail="Material not found.")
+
+
+# View for updating user profile info
+class UpdateUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        allowed_fields = ['first_name', 'last_name', 'username']
+        data = {key: value for key, value in request.data.items() if key in allowed_fields}
+
+        for field, value in data.items():
+            setattr(user, field, value)
+
+        user.save()
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
