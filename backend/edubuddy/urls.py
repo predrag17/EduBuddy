@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import MaterialView, UpdateUserView
+from .views import MaterialView, UpdateUserView, QuizView, QuizDetailView, QuestionView, DownloadQuizView
 
 urlpatterns = [
     path('chatbot/message', views.ChatbotMessageView.as_view(), name='chatbot_message'),
@@ -12,5 +12,10 @@ urlpatterns = [
     path('materials/update/<int:pk>', MaterialView.as_view()),
     path('materials/delete/<int:pk>', MaterialView.as_view()),
     path('user/update', UpdateUserView.as_view(), name='update-user'),
+    path('quizzes', QuizView.as_view()),
+    path('quizzes/<int:pk>', QuizDetailView.as_view()),
+    path('questions', QuestionView.as_view()),
+    path('questions/<int:pk>', QuestionView.as_view()),
+    path('quizzes/download/<int:pk>', DownloadQuizView.as_view()),
 
 ]
