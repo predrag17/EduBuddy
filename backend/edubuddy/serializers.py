@@ -1,7 +1,7 @@
 # edubuddy/serializers.py
 
 from rest_framework import serializers
-from .models import EduBuddyUser, Role, Material
+from .models import EduBuddyUser, Role, Material, Quiz, Question
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -48,3 +48,17 @@ class MaterialSerializer(serializers.ModelSerializer):
         if not value.name.endswith(('.pdf')):
             raise serializers.ValidationError("File type is not supported. Please upload a PDF file.")
         return value
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = '__all__'
+
+
+class QuizSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Quiz
+        fields = '__all__'

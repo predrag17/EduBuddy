@@ -1,7 +1,10 @@
 import json
 
+import os
+from django.conf import settings
+
 from django.contrib.auth import authenticate
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -10,8 +13,8 @@ from rest_framework.views import APIView
 
 from knox.models import AuthToken
 
-from .models import EduBuddyUser, Material
-from .serializers import UserSerializer, MaterialSerializer
+from .models import EduBuddyUser, Material, Quiz, Question
+from .serializers import UserSerializer, MaterialSerializer, QuizSerializer, QuestionSerializer
 from edubuddy.management.commands.query_data import query_rag
 
 
@@ -156,3 +159,97 @@ class UpdateUserView(APIView):
 
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class QuizView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        quizzes = Quiz.objects.filter(user=request.user)
+        serializer = QuizSerializer(quizzes, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = QuizSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+
+class QuizDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        try:
+            quiz = Quiz.objects.get(pk=pk, user=request.user)
+        except Quiz.DoesNotExist:
+            return Response({'error': 'Quiz not found'}, status=404)
+
+        serializer = QuizSerializer(quiz, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, pk):
+        try:
+            quiz = Quiz.objects.get(pk=pk, user=request.user)
+            quiz.delete()
+            return Response({'message': 'Quiz deleted successfully.'})
+        except Quiz.DoesNotExist:
+            return Response({'error': 'Quiz not found'}, status=404)
+
+
+class QuestionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = QuestionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+    def put(self, request, pk):
+        try:
+            question = Question.objects.get(pk=pk)
+        except Question.DoesNotExist:
+            return Response({'error': 'Question not found'}, status=404)
+
+        serializer = QuestionSerializer(question, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, pk):
+        try:
+            question = Question.objects.get(pk=pk)
+            question.delete()
+            return Response({'message': 'Question deleted successfully.'})
+        except Question.DoesNotExist:
+            return Response({'error': 'Question not found'}, status=404)
+
+
+
+class DownloadQuizView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            quiz = Quiz.objects.get(pk=pk, user=request.user)
+        except Quiz.DoesNotExist:
+            return Response({'error': 'Quiz not found'}, status=404)
+
+        serializer = QuizSerializer(quiz)
+        json_data = json.dumps(serializer.data, indent=4)
+
+        data_dir = os.path.join(settings.BASE_DIR, 'data')
+        os.makedirs(data_dir, exist_ok=True)
+
+        file_path = os.path.join(data_dir, f"quiz_{quiz.id}.json")
+        with open(file_path, 'w') as f:
+            f.write(json_data)
+
+        return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=os.path.basename(file_path))
