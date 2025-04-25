@@ -74,17 +74,19 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <Card className="bg-indigo-500/10 p-6 w-64 sm:w-72 text-center rounded-2xl border border-indigo-400/30">
-            <CardContent>
-              <Sparkles className="w-10 h-10 mx-auto text-indigo-400 mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold text-indigo-300">
-                View your materials
-              </h3>
-              <p className="text-sm opacity-80 text-gray-300">
-                Manage with your uploaded materials
-              </p>
-            </CardContent>
-          </Card>
+          <Link to="/material">
+            <Card className="bg-indigo-500/10 p-6 w-64 sm:w-72 text-center rounded-2xl border border-indigo-400/30">
+              <CardContent>
+                <Sparkles className="w-10 h-10 mx-auto text-indigo-400 mb-4" />
+                <h3 className="text-lg sm:text-xl font-semibold text-indigo-300">
+                  View your materials
+                </h3>
+                <p className="text-sm opacity-80 text-gray-300">
+                  Manage with your uploaded materials
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 30 }}

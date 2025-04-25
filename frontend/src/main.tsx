@@ -8,6 +8,7 @@ import Register from "./pages/auth/register/register.tsx";
 import Login from "./pages/auth/login/login.tsx";
 import Profile from "./pages/profile/profile.tsx";
 import { Providers } from "./components/provider.tsx";
+import ViewMaterial from "./pages/material/view-material.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/material" element={<ViewMaterial />} />
         </Routes>
       </Providers>
     </BrowserRouter>
