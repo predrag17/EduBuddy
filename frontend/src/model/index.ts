@@ -6,3 +6,14 @@ export type UserDto = {
   email: string;
   roleName: string;
 };
+
+export type MaterialDto = {
+  id: number;
+  subject: string;
+  description: string;
+  file: string;
+  isProcessed: boolean;
+  category: string;
+  uploadedAt: string;
+  user: UserDto;
+};
