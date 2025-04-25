@@ -44,6 +44,7 @@ class Material(models.Model):
     def __str__(self):
         return self.subject
 
+
 class Quiz(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -58,11 +59,15 @@ class Quiz(models.Model):
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
     text = models.TextField()
-    option_a = models.CharField(max_length=255)
-    option_b = models.CharField(max_length=255)
-    option_c = models.CharField(max_length=255)
-    option_d = models.CharField(max_length=255)
-    correct_option = models.CharField(max_length=1, choices=[('A','A'),('B','B'),('C','C'),('D','D')])
 
     def __str__(self):
         return f"{self.quiz.title} - {self.text[:30]}..."
+
+
+class Option(models.Model):
+    question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
+    text = models.CharField(max_length=255)
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{'✓ ' if self.is_correct else ''}{self.text}"
