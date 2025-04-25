@@ -9,6 +9,7 @@ import Login from "./pages/auth/login/login.tsx";
 import Profile from "./pages/profile/profile.tsx";
 import { Providers } from "./components/provider.tsx";
 import ViewMaterial from "./pages/material/view-material.tsx";
+import ProtectedRoute from "./components/providers/protected-routes.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -19,8 +20,14 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/chatbot" element={<ChatbotPage />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/material" element={<ViewMaterial />} />
+          <Route
+            path="/profile"
+            element={<ProtectedRoute element={<Profile />} />}
+          />
+          <Route
+            path="/material"
+            element={<ProtectedRoute element={<ViewMaterial />} />}
+          />
         </Routes>
       </Providers>
     </BrowserRouter>
