@@ -1,10 +1,11 @@
 import json
 
 import os
-from django.conf import settings
 
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.http import JsonResponse, FileResponse
+
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -12,9 +13,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from knox.models import AuthToken
+from .models import EduBuddyUser, Material, Quiz, Question, Result
 
-from .models import EduBuddyUser, Material, Quiz, Question
-from .serializers import UserSerializer, MaterialSerializer, QuizSerializer, QuestionSerializer
+from .serializers import UserSerializer, MaterialSerializer, QuizSerializer, QuestionSerializer, ResultSerializer
+
 from edubuddy.management.commands.query_data import query_rag
 
 
@@ -244,10 +246,72 @@ class DownloadQuizView(APIView):
         serializer = QuizSerializer(quiz)
         json_data = json.dumps(serializer.data, indent=4)
 
-        data_dir = os.path.join(settings.BASE_DIR, 'data')
+        data_dir = os.path.join(settings.BASE_DIR, 'quiz')
         os.makedirs(data_dir, exist_ok=True)
 
         file_path = os.path.join(data_dir, f"quiz_{quiz.id}.json")
+        with open(file_path, 'w') as f:
+            f.write(json_data)
+
+        return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=os.path.basename(file_path))
+
+
+class ResultView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        results = Result.objects.filter(user=request.user)
+        serializer = ResultSerializer(results, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = ResultSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ResultDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        try:
+            result = Result.objects.get(pk=pk, user=request.user)
+        except Result.DoesNotExist:
+            return Response({'error': 'Result not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ResultSerializer(result, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        try:
+            result = Result.objects.get(pk=pk, user=request.user)
+            result.delete()
+            return Response({'message': 'Review deleted successfully.'}, status=status.HTTP_200_OK)
+        except Result.DoesNotExist:
+            return Response({'error': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class DownloadResultView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            result = Result.objects.get(pk=pk, user=request.user)
+        except Result.DoesNotExist:
+            return Response({'error': 'Result not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ResultSerializer(result)
+        json_data = json.dumps(serializer.data, indent=4)
+
+        quiz_dir = os.path.join(settings.BASE_DIR, 'quiz')
+        os.makedirs(quiz_dir, exist_ok=True)
+
+        file_path = os.path.join(quiz_dir, f"result_{result.id}.json")
         with open(file_path, 'w') as f:
             f.write(json_data)
 

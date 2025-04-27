@@ -10,8 +10,10 @@ venv.bak/
 # idea
 .idea/
 
-# data
+# folders
 data/
+quiz/
 
 # chroma
 chroma/
+
