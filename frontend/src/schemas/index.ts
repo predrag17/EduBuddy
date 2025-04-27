@@ -55,3 +55,13 @@ export const UserSchema = z.object({
     message: "Емеил адресата е задолжителна и мора да биде валидна",
   }),
 });
+
+export const UploadMaterialSchema = z.object({
+  subject: z.string().min(1, "Subject is required"),
+  description: z.string().min(1, "Description is required"),
+  category: z.string().min(1, "Category is required"),
+  file: z
+    .any()
+    .refine((file) => file instanceof File, { message: "File is required" })
+    .optional(),
+});
