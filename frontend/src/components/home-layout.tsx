@@ -93,18 +93,20 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
-          <Card className="bg-violet-500/10 p-6 w-64 sm:w-72 text-center rounded-2xl border border-violet-400/30">
-            <CardContent>
-              <Cpu className="w-10 h-10 mx-auto text-violet-400 mb-4" />
-              <h3 className="text-lg sm:text-xl font-semibold text-violet-300">
-                Upload a material
-              </h3>
-              <p className="text-sm opacity-80 text-gray-300">
-                Upload a material that will expand the knowledge of your study
-                friend.
-              </p>
-            </CardContent>
-          </Card>
+          <Link to="/material/upload">
+            <Card className="bg-violet-500/10 p-6 w-64 sm:w-72 text-center rounded-2xl border border-violet-400/30">
+              <CardContent>
+                <Cpu className="w-10 h-10 mx-auto text-violet-400 mb-4" />
+                <h3 className="text-lg sm:text-xl font-semibold text-violet-300">
+                  Upload a material
+                </h3>
+                <p className="text-sm opacity-80 text-gray-300">
+                  Upload a material that will expand the knowledge of your study
+                  friend.
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
         </motion.div>
       </div>
     </div>

@@ -10,6 +10,7 @@ import Profile from "./pages/profile/profile.tsx";
 import { Providers } from "./components/provider.tsx";
 import ViewMaterial from "./pages/material/view-material.tsx";
 import ProtectedRoute from "./components/providers/protected-routes.tsx";
+import UploadMaterialPage from "./pages/material/components/upload-material-page.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -27,6 +28,10 @@ createRoot(document.getElementById("root")!).render(
           <Route
             path="/material"
             element={<ProtectedRoute element={<ViewMaterial />} />}
+          />
+          <Route
+            path="/material/upload"
+            element={<ProtectedRoute element={<UploadMaterialPage />} />}
           />
         </Routes>
       </Providers>
