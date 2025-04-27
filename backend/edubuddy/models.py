@@ -2,6 +2,7 @@
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Role(models.Model):
@@ -71,3 +72,14 @@ class Option(models.Model):
 
     def __str__(self):
         return f"{'✓ ' if self.is_correct else ''}{self.text}"
+
+
+class Result(models.Model):
+    description = models.TextField(blank=True)
+    grade = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
+    quiz = models.OneToOneField(Quiz, on_delete=models.CASCADE)
+
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Results for {self.quiz.title} by {self.quiz.user.username} - Grade: {self.grade}"
