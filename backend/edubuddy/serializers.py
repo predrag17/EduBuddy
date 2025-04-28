@@ -1,7 +1,7 @@
 # edubuddy/serializers.py
 
 from rest_framework import serializers
-from .models import EduBuddyUser, Role, Material, Quiz, Question, Option, Result
+from .models import EduBuddyUser, Role, Material, Quiz, Question, Option, Result, Category
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -35,15 +35,28 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+
 class MaterialSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        source='category',
+        write_only=True
+    )
 
     class Meta:
         model = Material
-        fields = ['id', 'subject', 'description', 'file', 'is_processed', 'category', 'uploaded_at', 'user']
+        fields = ['id', 'subject', 'description', 'file', 'is_processed', 'category', 'category_id', 'uploaded_at',
+                  'user']
         extra_kwargs = {
             'file': {'required': True},
-            'user': {'read_only': True}
+            'user': {'read_only': True},
         }
 
     def validate_file(self, value):
