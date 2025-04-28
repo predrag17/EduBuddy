@@ -12,31 +12,83 @@ import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UploadMaterialSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/navbar";
+import { Combobox } from "@/components/ui/combobox";
+import { CategoryDto } from "@/model";
+import { LoadingSpinner } from "@/components/loading-spinner";
+import { deleteCategory, getAllCategories } from "@/service/category-service";
+import { Plus } from "lucide-react";
+import CategoryDialog from "@/pages/category/components/category-dialog";
 
 const UploadMaterialPage = () => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [categories, setCategories] = useState<CategoryDto[]>([]);
+  const [categoryToUpdate, setCategoryToUpdate] = useState<CategoryDto | null>(
+    null
+  );
+
+  const fetchCategories = async () => {
+    setLoadingCategories(true);
+    try {
+      const categories = await getAllCategories();
+      setCategories(categories);
+    } catch (error) {
+      console.error("Error fetching categories", error);
+      toast.error("Error fetching categories. Try refreshing!");
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const form = useForm<z.infer<typeof UploadMaterialSchema>>({
     resolver: zodResolver(UploadMaterialSchema),
     defaultValues: {
       subject: "",
       description: "",
-      category: "",
+      categoryId: 0,
       file: undefined,
     },
   });
+
+  const handleCategoryAdded = () => {
+    fetchCategories();
+  };
+
+  const handleUpdateCategory = (category: CategoryDto) => {
+    setCategoryToUpdate(category);
+    setIsDialogOpen(true);
+  };
+
+  const handleDeleteCategory = async (categoryId: number) => {
+    try {
+      await deleteCategory(categoryId);
+
+      toast.success("Successfully deleting category.");
+      fetchCategories();
+      if (!categories.length) {
+        form.setValue("categoryId", 0);
+      }
+    } catch (error) {
+      toast.error("Error deleting category. Try again!");
+      console.error("Error deleting category.", error);
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof UploadMaterialSchema>) => {
     setIsLoading(true);
     const formData = new FormData();
     formData.append("subject", values.subject);
     formData.append("description", values.description);
-    formData.append("category", values.category);
     formData.append("file", "");
 
     try {
@@ -49,6 +101,14 @@ const UploadMaterialPage = () => {
       setIsLoading(false);
     }
   };
+
+  if (loadingCategories) {
+    return (
+      <div className="min-h-screen min-w-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -132,17 +192,31 @@ const UploadMaterialPage = () => {
 
                 <FormField
                   control={form.control}
-                  name="category"
+                  name="categoryId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          disabled={isLoading}
-                          placeholder="Enter category (e.g., High School)"
-                          className="bg-gray-800 text-white border-gray-600"
-                        />
+                        <div className="flex gap-2 items-center">
+                          <Combobox
+                            options={categories}
+                            value={field.value}
+                            onChange={(value) => {
+                              field.onChange(value);
+                              form.trigger("categoryId");
+                            }}
+                            onUpdate={handleUpdateCategory}
+                            onDelete={handleDeleteCategory}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setIsDialogOpen(true)}
+                          >
+                            <Plus className="w-5 h-5" />
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage className="text-red-500" />
                     </FormItem>
@@ -186,6 +260,16 @@ const UploadMaterialPage = () => {
           </Form>
         </motion.div>
       </div>
+
+      <CategoryDialog
+        isDialogOpen={isDialogOpen}
+        onDialogClose={() => {
+          setIsDialogOpen(false);
+          setCategoryToUpdate(null);
+        }}
+        onCategoryAdded={handleCategoryAdded}
+        category={categoryToUpdate}
+      />
     </>
   );
 };

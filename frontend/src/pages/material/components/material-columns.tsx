@@ -72,6 +72,10 @@ export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => {
+        const category = row.original.category;
+        return category ? category.name : "";
+      },
     },
     {
       accessorKey: "uploadedAt",

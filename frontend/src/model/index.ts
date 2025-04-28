@@ -13,7 +13,12 @@ export type MaterialDto = {
   description: string;
   file: string;
   isProcessed: boolean;
-  category: string;
+  category: CategoryDto;
   uploadedAt: string;
   user: UserDto;
+};
+
+export type CategoryDto = {
+  id: number;
+  name: string;
 };

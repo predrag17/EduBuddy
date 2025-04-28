@@ -7,15 +7,16 @@ from django.contrib.auth import authenticate
 from django.http import JsonResponse, FileResponse
 
 from rest_framework import status
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from knox.models import AuthToken
-from .models import EduBuddyUser, Material, Quiz, Question, Result
+from .models import EduBuddyUser, Material, Quiz, Question, Result, Category
 
-from .serializers import UserSerializer, MaterialSerializer, QuizSerializer, QuestionSerializer, ResultSerializer
+from .serializers import UserSerializer, MaterialSerializer, QuizSerializer, QuestionSerializer, ResultSerializer, \
+    CategorySerializer
 
 from edubuddy.management.commands.query_data import query_rag
 
@@ -104,22 +105,86 @@ class AuthenticateUserView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class CategoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    # Retrieve all categories
+    def get(self, request):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Create a new category
+    def post(self, request):
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CategoryDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    # Retrieve a single category by its ID
+    def get(self, request, pk):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            raise NotFound(detail="Category not found.")
+
+        serializer = CategorySerializer(category)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Update an existing category by its ID
+    def put(self, request, pk):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            raise NotFound(detail="Category not found.")
+
+        serializer = CategorySerializer(category, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete a category by its ID
+    def delete(self, request, pk):
+        try:
+            category = Category.objects.get(pk=pk)
+
+            if Material.objects.filter(category=category).exists():
+                raise ValidationError(detail="Cannot delete category because it is associated with existing materials.")
+
+            category.delete()
+            return Response({'message': 'Category deleted successfully.'}, status=status.HTTP_200_OK)
+        except Category.DoesNotExist:
+            raise NotFound(detail="Category not found.")
+
+
 # Class-based view for CRUD operations on Material
 class MaterialView(APIView):
     permission_classes = [IsAuthenticated]
 
     # Retrieve all materials
     def get(self, request):
-        materials = Material.objects.filter(user=request.user)
+        if request.user.role.name == 'ADMIN':
+            materials = Material.objects.all()
+        else:
+            materials = Material.objects.filter(user=request.user)
+
         serializer = MaterialSerializer(materials, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # Create material
+    # Create a material
     def post(self, request):
         serializer = MaterialSerializer(data=request.data)
+
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Update an existing material
