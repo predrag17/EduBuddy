@@ -85,7 +85,7 @@ const EditUserDialog = ({ isDialogOpen, onDialogClose }: EditUserDialog) => {
                             placeholder="John"
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
@@ -102,7 +102,7 @@ const EditUserDialog = ({ isDialogOpen, onDialogClose }: EditUserDialog) => {
                             placeholder="Doe"
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-red-500" />
                       </FormItem>
                     )}
                   />
@@ -121,7 +121,7 @@ const EditUserDialog = ({ isDialogOpen, onDialogClose }: EditUserDialog) => {
                           placeholder="johndoe123"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -140,7 +140,7 @@ const EditUserDialog = ({ isDialogOpen, onDialogClose }: EditUserDialog) => {
                           type="email"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />

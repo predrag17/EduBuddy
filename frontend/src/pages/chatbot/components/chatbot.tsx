@@ -6,11 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sun, Moon, ArrowLeft } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Link } from "react-router-dom";
 import { createAnswer } from "@/service/chatbot-service";
-import UserAuthStatus from "@/components/user-auth-status";
+import { Navbar } from "@/components/navbar";
 
 export default function Chatbot() {
   const [messages, setMessages] = useState<{ user: string; bot: string }[]>([]);
@@ -81,11 +80,11 @@ export default function Chatbot() {
 
   return (
     <div
-      className={`min-h-screen min-w-screen flex flex-col items-center justify-center px-4 sm:px-8 md:px-12 lg:px-20 relative overflow-hidden transition-all duration-300 ${
+      className={`min-h-screen min-w-screen flex flex-col items-center justify-start px-4 sm:px-8 md:px-12 lg:px-20 relative overflow-hidden transition-all duration-300 pt-19 ${
         theme === "dark" ? "bg-black text-white" : "bg-white text-black"
       }`}
     >
-      <UserAuthStatus />
+      <Navbar />
 
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute w-full h-full bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 " />
@@ -99,26 +98,10 @@ export default function Chatbot() {
             : "bg-gray-100 border-gray-300"
         }`}
       >
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-4 mt-4">
           <div className="flex items-center gap-2">
-            <Link to={"/"}>
-              <Button
-                disabled={processing}
-                className={`px-4 py-2 rounded-lg w-full sm:w-auto min-h-[48px] transition-all duration-300 ${
-                  theme === "dark"
-                    ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:opacity-90"
-                    : "bg-gradient-to-r from-blue-300 to-purple-400 text-black hover:opacity-90"
-                }`}
-              >
-                <ArrowLeft
-                  className={`w-6 h-6 transition-all duration-300 ${
-                    theme === "dark" ? "text-white" : "text-black"
-                  }`}
-                />
-              </Button>
-            </Link>
             <h2
-              className={`text-3xl font-bold transition-all duration-300 ${
+              className={`text-2xl font-bold transition-all duration-300 ${
                 theme === "dark" ? "text-white" : "text-black"
               }`}
             >

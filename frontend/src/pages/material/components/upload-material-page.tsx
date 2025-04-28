@@ -16,9 +16,7 @@ import { useState } from "react";
 import { UploadMaterialSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import UserAuthStatus from "@/components/user-auth-status";
-import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { Navbar } from "@/components/navbar";
 
 const UploadMaterialPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -55,22 +53,9 @@ const UploadMaterialPage = () => {
   return (
     <>
       <Toaster />
-      <div className="min-h-screen min-w-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
-        <UserAuthStatus />
+      <div className="min-h-screen min-w-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-16 sm:pt-24">
+        <Navbar />
 
-        <div className="absolute top-6 left-4 z-10 sm:top-6 sm:left-6">
-          <Link to="/">
-            <Button
-              variant="outline"
-              className="bg-indigo-500/20 hover:bg-indigo-500/30 text-white border border-indigo-300 p-2.5 sm:p-3 rounded-md"
-              aria-label="Go back to home"
-            >
-              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-            </Button>
-          </Link>
-        </div>
-
-        {/* Background Animation */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <motion.div
             className="absolute w-full h-full max-w-full max-h-full bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-fuchsia-500/10 animate-pulse"
@@ -89,21 +74,21 @@ const UploadMaterialPage = () => {
           />
         </div>
 
-        <motion.h2
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-4xl font-bold text-center mb-8 text-indigo-400 z-10"
-        >
-          Upload Your Material
-        </motion.h2>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full max-w-2xl space-y-6 z-10 border border-indigo-400/20"
+          className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mt-6 w-full max-w-2xl space-y-6 z-10 border border-indigo-400/20"
         >
+          <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            className="text-2xl sm:text-1xl font-bold text-center mb-8 text-indigo-400 z-10"
+          >
+            Upload Your Material
+          </motion.h2>
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-4">
