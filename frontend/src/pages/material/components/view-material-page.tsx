@@ -3,12 +3,9 @@ import { MaterialDto } from "@/model";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { materialColumns } from "./material-columns";
-import UserAuthStatus from "@/components/user-auth-status";
 import { useAuth } from "@/components/providers/auth-provider";
 import { LoadingSpinner } from "@/components/loading-spinner";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Navbar } from "@/components/navbar";
 
 const ViewMaterialPage = () => {
   const [materials, setMaterials] = useState<MaterialDto[]>([]);
@@ -24,20 +21,8 @@ const ViewMaterialPage = () => {
   }
 
   return (
-    <div className="min-h-screen w-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-10 pt-16 sm:pt-20">
-      <UserAuthStatus />
-
-      <div className="absolute top-6 left-4 z-10 sm:top-6 sm:left-6">
-        <Link to="/">
-          <Button
-            variant="outline"
-            className="bg-indigo-500/20 hover:bg-indigo-500/30 text-white border border-indigo-300 p-2.5 sm:p-3 rounded-md"
-            aria-label="Go back to home"
-          >
-            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-          </Button>
-        </Link>
-      </div>
+    <div className="min-h-screen w-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-10 pt-20 sm:pt-24">
+      <Navbar />
 
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <motion.div
@@ -57,23 +42,30 @@ const ViewMaterialPage = () => {
         />
       </div>
 
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mt-10 sm:mt-16 mb-6 sm:mb-10 text-center drop-shadow-lg z-10 text-indigo-400"
-      >
-        View Materials
-      </motion.h1>
+      <div className="w-full flex flex-col justify-start items-center mt-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="bg-white/10 backdrop-blur-md rounded-2xl p-8 w-full max-w-5xl space-y-6 z-10 border border-indigo-400/20"
+        >
+          <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            className="text-3xl sm:text-4xl font-bold text-center mb-8 text-indigo-400 z-10"
+          >
+            View Materials
+          </motion.h2>
 
-      <div className="w-full max-w-[95vw] mt-4 sm:mt-6 flex-1 overflow-auto">
-        <DataTable
-          columns={materialColumns(auth?.user.roleName)}
-          data={materials}
-          filterColumn="subject"
-          filterTitle="Пребарај материјал..."
-          canSearch={true}
-        />
+          <DataTable
+            columns={materialColumns(auth?.user.roleName)}
+            data={materials}
+            filterColumn="subject"
+            filterTitle="Пребарај материјал..."
+            canSearch={true}
+          />
+        </motion.div>
       </div>
     </div>
   );

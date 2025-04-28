@@ -16,7 +16,7 @@ const ProfilePage = () => {
 
   return (
     <>
-      <div className="min-h-screen min-w-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-16 sm:pt-24">
+      <div className="min-h-screen min-w-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-16 sm:pt-24">
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <motion.div
             className="absolute w-full h-full bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-fuchsia-500/10 animate-pulse"
@@ -62,8 +62,7 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-center gap-6 mt-8">
+        <div className="flex flex-col sm:flex-row justify-center gap-6 mt-8">
           <Button
             variant="outline"
             className="flex items-center gap-2 w-full sm:w-auto justify-center border-indigo-400 text-indigo-400 hover:bg-indigo-500 hover:text-white"

@@ -7,10 +7,9 @@ import UserAuthStatus from "./user-auth-status";
 
 export default function Home() {
   return (
-    <div className="min-h-screen min-w-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
+    <div className="min-h-screen min-w-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
       <UserAuthStatus />
 
-      {/* Background Animation */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <motion.div
           className="absolute w-full h-full max-w-full max-h-full bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-fuchsia-500/10 animate-pulse"
@@ -67,7 +66,6 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* Feature Cards */}
       <div className="relative flex flex-col sm:flex-row flex-wrap justify-center items-center space-y-6 sm:space-y-0 sm:space-x-6 mt-16 z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
