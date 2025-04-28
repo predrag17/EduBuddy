@@ -6,22 +6,44 @@ import { materialColumns } from "./material-columns";
 import { useAuth } from "@/components/providers/auth-provider";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { Navbar } from "@/components/navbar";
+import toast, { Toaster } from "react-hot-toast";
+import { fetchAllMaterials } from "@/service/material-service";
 
 const ViewMaterialPage = () => {
   const [materials, setMaterials] = useState<MaterialDto[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
 
   useEffect(() => {
-    // TODO: make an API call
     setMaterials([]);
+    const fetchMaterials = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetchAllMaterials();
+        setMaterials(response);
+      } catch (error) {
+        console.error("Failed to fetch materials", error);
+        toast.error("Error fetching materials. Try refreshing.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMaterials();
   }, [auth.user]);
 
-  if (!auth?.user) {
-    return <LoadingSpinner />;
+  if (!auth?.user || isLoading) {
+    return (
+      <div className="min-h-screen min-w-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen w-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-6 md:px-8 lg:px-10 pt-20 sm:pt-24">
+      <Toaster />
+
       <Navbar />
 
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">

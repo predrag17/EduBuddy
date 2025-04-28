@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { MaterialDto } from "@/model";
+import { format } from "date-fns";
 
 export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
   const baseColumns: ColumnDef<MaterialDto>[] = [
@@ -42,6 +43,11 @@ export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => {
+        const filePath = row.original.file;
+        const fileName = filePath.split("/")[2];
+        return fileName;
+      },
     },
     {
       accessorKey: "isProcessed",
@@ -78,6 +84,14 @@ export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => {
+        const uploadedAt = row.original.uploadedAt;
+        const formattedDate = format(
+          new Date(uploadedAt),
+          "d MMMM yyyy, HH:mm:ss"
+        );
+        return formattedDate;
+      },
     },
   ];
 
@@ -93,6 +107,10 @@ export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => {
+        const user = row.original.user;
+        return `${user.username}`;
+      },
     },
   ];
 
