@@ -36,9 +36,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class MaterialSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = Material
-        fields = ['id', 'subject', 'description', 'file', 'category', 'user']
+        fields = ['id', 'subject', 'description', 'file', 'is_processed', 'category', 'uploaded_at', 'user']
         extra_kwargs = {
             'file': {'required': True},
             'user': {'read_only': True}
