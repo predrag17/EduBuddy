@@ -23,6 +23,8 @@ import { LoadingSpinner } from "@/components/loading-spinner";
 import { deleteCategory, getAllCategories } from "@/service/category-service";
 import { Plus } from "lucide-react";
 import CategoryDialog from "@/pages/category/components/category-dialog";
+import { uploadMaterial } from "@/service/material-service";
+import { useNavigate } from "react-router-dom";
 
 const UploadMaterialPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -32,6 +34,12 @@ const UploadMaterialPage = () => {
   const [categoryToUpdate, setCategoryToUpdate] = useState<CategoryDto | null>(
     null
   );
+  const navigate = useNavigate();
+
+  const isLatinFilename = (fileName: string): boolean => {
+    const latinNameRegex = /^[\x00-\x7F]+$/;
+    return latinNameRegex.test(fileName);
+  };
 
   const fetchCategories = async () => {
     setLoadingCategories(true);
@@ -86,14 +94,13 @@ const UploadMaterialPage = () => {
 
   const onSubmit = async (values: z.infer<typeof UploadMaterialSchema>) => {
     setIsLoading(true);
-    const formData = new FormData();
-    formData.append("subject", values.subject);
-    formData.append("description", values.description);
-    formData.append("file", "");
-
     try {
-      console.log("Test");
+      await uploadMaterial(values);
+
       toast.success("Successfully saved");
+      setTimeout(() => {
+        navigate("/material");
+      }, 1500);
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Something went wrong.");
@@ -166,7 +173,7 @@ const UploadMaterialPage = () => {
                           className="bg-gray-800 text-white border-gray-600"
                         />
                       </FormControl>
-                      <FormMessage className="text-red-500" />
+                      <FormMessage className="text-red-500 font-bold" />
                     </FormItem>
                   )}
                 />
@@ -185,7 +192,7 @@ const UploadMaterialPage = () => {
                           className="bg-gray-800 text-white border-gray-600"
                         />
                       </FormControl>
-                      <FormMessage className="text-red-500" />
+                      <FormMessage className="text-red-500 font-bold" />
                     </FormItem>
                   )}
                 />
@@ -218,7 +225,7 @@ const UploadMaterialPage = () => {
                           </Button>
                         </div>
                       </FormControl>
-                      <FormMessage className="text-red-500" />
+                      <FormMessage className="text-red-500 font-bold" />
                     </FormItem>
                   )}
                 />
@@ -237,13 +244,20 @@ const UploadMaterialPage = () => {
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
+                              if (!isLatinFilename(file.name)) {
+                                toast.error(
+                                  "File name must contain only Latin characters."
+                                );
+                                e.target.value = "";
+                                return;
+                              }
                               onChange(file);
                             }
                           }}
                           className="bg-gray-800 text-white border-gray-600"
                         />
                       </FormControl>
-                      <FormMessage className="text-red-500" />
+                      <FormMessage className="text-red-500 font-bold" />
                     </FormItem>
                   )}
                 />

@@ -8,6 +8,7 @@ from django.http import JsonResponse, FileResponse
 
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -166,6 +167,7 @@ class CategoryDetailView(APIView):
 # Class-based view for CRUD operations on Material
 class MaterialView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
 
     # Retrieve all materials
     def get(self, request):
