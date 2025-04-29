@@ -31,6 +31,12 @@ export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => {
+        const description: string = row.original.description;
+        return description.length > 75
+          ? `${description.substring(0, 75)}...`
+          : description;
+      },
     },
     {
       accessorKey: "file",

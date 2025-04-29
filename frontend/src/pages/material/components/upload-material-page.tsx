@@ -284,6 +284,24 @@ const UploadMaterialPage = () => {
         onCategoryAdded={handleCategoryAdded}
         category={categoryToUpdate}
       />
+
+      {isLoading && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center"
+        >
+          <div className="text-center space-y-4">
+            <div className="flex justify-center items-center">
+              <LoadingSpinner />
+            </div>
+            <p className="text-white text-lg font-semibold">
+              Uploading your file, please wait...
+            </p>
+          </div>
+        </motion.div>
+      )}
     </>
   );
 };
