@@ -2,6 +2,7 @@ import json
 
 import os
 
+from django.core.management import call_command
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.http import JsonResponse, FileResponse
@@ -184,7 +185,16 @@ class MaterialView(APIView):
         serializer = MaterialSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            material = serializer.save(user=request.user)
+
+            try:
+                call_command("create_database")
+
+                material.is_processed = True
+                material.save(update_fields=["is_processed"])
+            except Exception as e:
+                print(f"Failed to execute create_database command: {e}")
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
