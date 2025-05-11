@@ -22,3 +22,23 @@ export type CategoryDto = {
   id: number;
   name: string;
 };
+
+export type AnswerDto = {
+  id: number;
+  text: string;
+  is_correct: boolean;
+};
+
+export type QuestionDto = {
+  id: number;
+  text: string;
+  answers: AnswerDto[];
+};
+
+export type QuizDto = {
+  title: string;
+  description: string;
+  created_at: string;
+  user: UserDto;
+  questions: QuestionDto[];
+};

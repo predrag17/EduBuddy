@@ -11,6 +11,7 @@ import { Providers } from "./components/provider.tsx";
 import ViewMaterial from "./pages/material/view-material.tsx";
 import ProtectedRoute from "./components/providers/protected-routes.tsx";
 import UploadMaterialPage from "./pages/material/components/upload-material-page.tsx";
+import Quiz from "./pages/quiz/quiz.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -33,6 +34,7 @@ createRoot(document.getElementById("root")!).render(
             path="/material/upload"
             element={<ProtectedRoute element={<UploadMaterialPage />} />}
           />
+          <Route path="/quiz" element={<ProtectedRoute element={<Quiz />} />} />
         </Routes>
       </Providers>
     </BrowserRouter>

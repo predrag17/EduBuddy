@@ -1,7 +1,7 @@
 # edubuddy/serializers.py
 
 from rest_framework import serializers
-from .models import EduBuddyUser, Role, Material, Quiz, Question, Option, Result, Category
+from .models import EduBuddyUser, Role, Material, Quiz, Question, Category, Answer
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -65,18 +65,18 @@ class MaterialSerializer(serializers.ModelSerializer):
         return value
 
 
-class OptionSerializer(serializers.ModelSerializer):
+class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Option
-        fields = ['id', 'text', 'is_correct']
+        model = Answer
+        fields = ["id", "text", "is_correct"]
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    options = OptionSerializer(many=True, read_only=True)
+    answers = AnswerSerializer(many=True, read_only=True)
 
     class Meta:
         model = Question
-        fields = ['id', 'text', 'options']
+        fields = ["id", "text", "difficulty", "answers"]
 
 
 class QuizSerializer(serializers.ModelSerializer):
@@ -85,10 +85,3 @@ class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = ['id', 'title', 'description', 'questions']
-
-
-class ResultSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Result
-        fields = '__all__'
-        read_only_fields = ['user', 'created_at']

@@ -2,7 +2,6 @@
 import os
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from edubuddy.management.commands.get_embedding_function import get_embedding_function
 from langchain_chroma import Chroma
