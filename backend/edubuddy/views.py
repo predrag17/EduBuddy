@@ -1,14 +1,15 @@
+import io
 import json
 import os
+
 import pdfplumber
 import re
 
 from openai import OpenAI
 
 from django.core.management import call_command
-from django.conf import settings
 from django.contrib.auth import authenticate
-from django.http import JsonResponse, FileResponse
+from django.http import JsonResponse, HttpResponse
 from dotenv import load_dotenv
 
 from pdf2image import convert_from_path
@@ -24,12 +25,15 @@ from rest_framework.views import APIView
 
 from knox.models import AuthToken
 
-from .models import EduBuddyUser, Material, Quiz, Question, Category, Answer
+from .models import EduBuddyUser, Material, Quiz, Question, Category, Answer, QuizResult, QuestionResult
 
-from .serializers import UserSerializer, MaterialSerializer, QuizSerializer, QuestionSerializer, \
-    CategorySerializer
+from .serializers import UserSerializer, MaterialSerializer, QuizSerializer, \
+    CategorySerializer, QuizResultSummarySerializer
 
 from edubuddy.management.commands.query_data import query_rag
+
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -252,99 +256,6 @@ class UpdateUserView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class QuizView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        quizzes = Quiz.objects.filter(user=request.user)
-        serializer = QuizSerializer(quizzes, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = QuizSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
-
-
-class QuizDetailView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def put(self, request, pk):
-        try:
-            quiz = Quiz.objects.get(pk=pk, user=request.user)
-        except Quiz.DoesNotExist:
-            return Response({'error': 'Quiz not found'}, status=404)
-
-        serializer = QuizSerializer(quiz, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
-
-    def delete(self, request, pk):
-        try:
-            quiz = Quiz.objects.get(pk=pk, user=request.user)
-            quiz.delete()
-            return Response({'message': 'Quiz deleted successfully.'})
-        except Quiz.DoesNotExist:
-            return Response({'error': 'Quiz not found'}, status=404)
-
-
-class QuestionView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        serializer = QuestionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
-
-    def put(self, request, pk):
-        try:
-            question = Question.objects.get(pk=pk)
-        except Question.DoesNotExist:
-            return Response({'error': 'Question not found'}, status=404)
-
-        serializer = QuestionSerializer(question, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
-
-    def delete(self, request, pk):
-        try:
-            question = Question.objects.get(pk=pk)
-            question.delete()
-            return Response({'message': 'Question deleted successfully.'})
-        except Question.DoesNotExist:
-            return Response({'error': 'Question not found'}, status=404)
-
-
-class DownloadQuizView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, pk):
-        try:
-            quiz = Quiz.objects.get(pk=pk, user=request.user)
-        except Quiz.DoesNotExist:
-            return Response({'error': 'Quiz not found'}, status=404)
-
-        serializer = QuizSerializer(quiz)
-        json_data = json.dumps(serializer.data, indent=4)
-
-        data_dir = os.path.join(settings.BASE_DIR, 'quiz')
-        os.makedirs(data_dir, exist_ok=True)
-
-        file_path = os.path.join(data_dir, f"quiz_{quiz.id}.json")
-        with open(file_path, 'w') as f:
-            f.write(json_data)
-
-        return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=os.path.basename(file_path))
-
-
 class GenerateQuestionsView(APIView):
     def post(self, request):
         difficulty = request.data.get('difficulty')
@@ -379,7 +290,7 @@ class GenerateQuestionsView(APIView):
             )
 
         quiz = Quiz.objects.create(
-            title=f"Quiz for {material.file} ({difficulty})",
+            title=f"Quiz for {material.file}",
             description=f"Generated quiz for material {material.file} with {difficulty} difficulty",
             user=request.user
         )
@@ -534,3 +445,136 @@ class GenerateQuestionsView(APIView):
 
         except Exception as e:
             raise Exception(f"Error generating questions with OpenAI: {str(e)}")
+
+
+class DownloadQuizResultView(APIView):
+    def post(self, request, quiz_id):
+        user = request.user
+
+        try:
+            quiz = Quiz.objects.get(id=quiz_id, user=user)
+        except Quiz.DoesNotExist:
+            return Response({"detail": "Quiz not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            quiz_result = QuizResult.objects.get(quiz=quiz, user=user)
+        except QuizResult.DoesNotExist:
+            return Response({"detail": "Quiz result not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        question_results = quiz_result.question_results.all()
+
+        correct = quiz_result.score
+        total = quiz_result.total_questions
+        result_rows = []
+
+        for question_result in question_results:
+            question_text = question_result.question.text
+            selected_answer = question_result.selected_answer
+            correct_answer = next((a for a in question_result.question.answers.all() if a.is_correct), None).text
+            result = "True" if question_result.is_correct else "False"
+
+            result_rows.append([question_text, selected_answer, correct_answer, result])
+
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer, pagesize=letter)
+        width, height = letter
+
+        p.setFont("Helvetica", 12)
+        p.drawString(100, height - 50, f"Quiz Title: {quiz.title}")
+        p.drawString(100, height - 70, f"User: {user.username}")
+        p.drawString(100, height - 90, f"Score: {correct} / {total}")
+        p.drawString(100, height - 120, "Results:")
+
+        p.setFont("Helvetica", 10)
+        y_position = height - 140
+
+        for row in result_rows:
+            question_text = row[0]
+            selected_answer = row[1]
+            correct_answer = row[2]
+            result = row[3]
+
+            p.drawString(100, y_position, f"Question: {question_text}")
+            y_position -= 20
+            p.drawString(100, y_position, f"Your Answer: {selected_answer}")
+            y_position -= 20
+            p.drawString(100, y_position, f"Correct Answer: {correct_answer}")
+            y_position -= 20
+            p.drawString(100, y_position, f"Result: {result}")
+            y_position -= 40
+
+            if y_position < 50:
+                p.showPage()
+                p.setFont("Helvetica", 10)
+                y_position = height - 50
+
+        p.showPage()
+        p.save()
+
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="quiz_result_{quiz.title}.pdf"'
+        return response
+
+
+class QuizResultSummaryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        results = QuizResult.objects.filter(user=request.user).select_related('quiz')
+        serializer = QuizResultSummarySerializer(results, many=True)
+        return Response(serializer.data)
+
+
+class SaveQuizResultView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        quiz_id = request.data.get('quiz_id')
+        question_results = request.data.get('question_results')
+        score = request.data.get('score')
+        user = request.user
+
+        if not quiz_id or not question_results or score is None:
+            raise ValidationError("Quiz ID, Question Results, and Score are required.")
+
+        try:
+            quiz = Quiz.objects.get(id=quiz_id)
+        except Quiz.DoesNotExist:
+            raise ValidationError("Quiz not found.")
+
+        quiz_result = QuizResult.objects.create(
+            quiz=quiz,
+            score=score,
+            total_questions=len(question_results),
+            user_id=user.id
+        )
+
+        question_result_instances = []
+        for result in question_results:
+            try:
+                question = Question.objects.get(id=result['question_id'])
+            except Question.DoesNotExist:
+                raise ValidationError(f"Question with ID {result['question_id']} not found.")
+
+            try:
+                correct_answer = question.answers.get(is_correct=True)
+            except Answer.DoesNotExist:
+                raise ValidationError(f"No correct answer found for question ID {result['question_id']}.")
+
+            is_correct = result['selected_answer'] == correct_answer.text
+
+            question_result_instances.append(
+                QuestionResult(
+                    quiz_result=quiz_result,
+                    question=question,
+                    selected_answer=result['selected_answer'],
+                    is_correct=is_correct
+                )
+            )
+
+        QuestionResult.objects.bulk_create(question_result_instances)
+
+        quiz_result_summary = QuizResultSummarySerializer(quiz_result)
+
+        return Response(quiz_result_summary.data, status=status.HTTP_201_CREATED)

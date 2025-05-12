@@ -16,23 +16,26 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useState } from "react";
-import { CategoryDto } from "@/model";
 
-interface ComboboxProps {
-  options: CategoryDto[];
+interface ComboboxProps<T> {
+  options: T[];
   value?: number;
   onChange: (value: number) => void;
-  onUpdate: (category: CategoryDto) => void;
-  onDelete: (categoryId: number) => void;
+  onUpdate: (item: T) => void;
+  onDelete: (itemId: number) => void;
+  getLabel: (item: T) => string;
+  getId: (item: T) => number;
 }
 
-export const Combobox = ({
+export const Combobox = <T,>({
   options,
   value,
   onChange,
   onUpdate,
   onDelete,
-}: ComboboxProps) => {
+  getLabel,
+  getId,
+}: ComboboxProps<T>) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -45,7 +48,7 @@ export const Combobox = ({
           className="justify-between"
         >
           {value
-            ? options.find((option) => option.id === value)?.name
+            ? getLabel(options.find((opt) => getId(opt) === value)!)
             : "Choose..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -56,52 +59,56 @@ export const Combobox = ({
           <CommandList>
             <CommandEmpty>Not found.</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option.id}
-                  onSelect={() => {
-                    onChange(option.id === value ? 0 : option.id);
-                    setOpen(false);
-                  }}
-                  className="flex justify-between items-center"
-                >
-                  <div className="flex items-center">
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        value === option.id ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {option.name}
-                  </div>
+              {options.map((option) => {
+                const optionId = getId(option);
+                const selected = optionId === value;
+                return (
+                  <CommandItem
+                    key={optionId}
+                    onSelect={() => {
+                      onChange(selected ? 0 : optionId);
+                      setOpen(false);
+                    }}
+                    className="flex justify-between items-center"
+                  >
+                    <div className="flex items-center">
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          selected ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {getLabel(option)}
+                    </div>
 
-                  <div className="flex space-x-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onUpdate(option);
-                      }}
-                      className="p-1"
-                    >
-                      <Edit className="h-2 w-2" />
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onUpdate(option);
+                        }}
+                        className="p-1"
+                      >
+                        <Edit className="h-2 w-2" />
+                      </Button>
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(option.id);
-                      }}
-                      className="p-1"
-                    >
-                      <Trash className="h-2 w-2" />
-                    </Button>
-                  </div>
-                </CommandItem>
-              ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(optionId);
+                        }}
+                        className="p-1"
+                      >
+                        <Trash className="h-2 w-2" />
+                      </Button>
+                    </div>
+                  </CommandItem>
+                );
+              })}
             </CommandGroup>
           </CommandList>
         </Command>
