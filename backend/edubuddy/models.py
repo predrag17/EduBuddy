@@ -61,7 +61,7 @@ class Question(models.Model):
     DIFFICULTY_LEVELS = [
         ("easy", "Easy"),
         ("medium", "Medium"),
-        ("Hard", "Hard"),
+        ("hard", "Hard"),
     ]
 
     quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
@@ -86,3 +86,24 @@ class Answer(models.Model):
 
     def __str__(self):
         return f"{self.text} ({'Correct' if self.is_correct else 'Incorrect'})"
+
+
+class QuizResult(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    user = models.ForeignKey(EduBuddyUser, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    total_questions = models.IntegerField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.quiz.title} - {self.score}/{self.total_questions}"
+
+
+class QuestionResult(models.Model):
+    quiz_result = models.ForeignKey(QuizResult, related_name="question_results", on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_answer = models.CharField(max_length=255)
+    is_correct = models.BooleanField()
+
+    def __str__(self):
+        return f"{self.question.text[:30]}... - {'True' if self.is_correct else 'False'}"

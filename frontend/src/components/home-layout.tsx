@@ -72,7 +72,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <Link to="/material">
+          <Link to="/materials">
             <Card className="bg-indigo-500/10 p-6 w-64 sm:w-72 text-center rounded-2xl border border-indigo-400/30">
               <CardContent>
                 <Sparkles className="w-10 h-10 mx-auto text-indigo-400 mb-4" />

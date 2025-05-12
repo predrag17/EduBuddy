@@ -1,38 +1,35 @@
 import { DataTable } from "@/components/data-table";
-import { MaterialDto } from "@/model";
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import { materialColumns } from "./material-columns";
-import { useAuth } from "@/components/providers/auth-provider";
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { Navbar } from "@/components/navbar";
+import { QuizSummaryDto } from "@/model";
+import { fetchAllQuizResults } from "@/service/quiz-service";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { fetchAllMaterials } from "@/service/material-service";
+import { quizResultColumns } from "./quiz-columns";
 
-const ViewMaterialPage = () => {
-  const [materials, setMaterials] = useState<MaterialDto[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const auth = useAuth();
+export default function ViewQuizzesPage() {
+  const [summaries, setSummaries] = useState<QuizSummaryDto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setMaterials([]);
-    const fetchMaterials = async () => {
+    const fetchSummaries = async () => {
       try {
-        setIsLoading(true);
-        const response = await fetchAllMaterials();
-        setMaterials(response);
-      } catch (error) {
-        console.error("Failed to fetch materials", error);
-        toast.error("Error fetching materials. Try refreshing.");
+        const summaries = await fetchAllQuizResults();
+
+        setSummaries(summaries);
+      } catch (err) {
+        console.error("Failed to fetch quiz summaries", err);
+        toast.error("Error fetching all quiz summaries, try refreshing!");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchMaterials();
-  }, [auth.user]);
+    fetchSummaries();
+  }, []);
 
-  if (!auth?.user || isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen min-w-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
         <LoadingSpinner />
@@ -77,20 +74,18 @@ const ViewMaterialPage = () => {
             transition={{ duration: 1 }}
             className="text-3xl sm:text-4xl font-bold text-center mb-8 text-indigo-400 z-10"
           >
-            View Materials
+            View all Quizzes
           </motion.h2>
 
           <DataTable
-            columns={materialColumns(auth?.user.roleName)}
-            data={materials}
-            filterColumn="subject"
-            filterTitle="Search material..."
+            columns={quizResultColumns()}
+            data={summaries}
+            filterColumn="title"
+            filterTitle="Search quiz..."
             canSearch={true}
           />
         </motion.div>
       </div>
     </div>
   );
-};
-
-export default ViewMaterialPage;
+}

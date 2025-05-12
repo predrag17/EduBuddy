@@ -12,6 +12,8 @@ import ViewMaterial from "./pages/material/view-material.tsx";
 import ProtectedRoute from "./components/providers/protected-routes.tsx";
 import UploadMaterialPage from "./pages/material/components/upload-material-page.tsx";
 import Quiz from "./pages/quiz/quiz.tsx";
+import StartQuizPage from "./pages/quiz/components/start-quiz-page.tsx";
+import ViewQuizzesPage from "./pages/quiz/components/view-quizzes-page.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -27,7 +29,7 @@ createRoot(document.getElementById("root")!).render(
             element={<ProtectedRoute element={<Profile />} />}
           />
           <Route
-            path="/material"
+            path="/materials"
             element={<ProtectedRoute element={<ViewMaterial />} />}
           />
           <Route
@@ -35,6 +37,14 @@ createRoot(document.getElementById("root")!).render(
             element={<ProtectedRoute element={<UploadMaterialPage />} />}
           />
           <Route path="/quiz" element={<ProtectedRoute element={<Quiz />} />} />
+          <Route
+            path="/start-quiz"
+            element={<ProtectedRoute element={<StartQuizPage />} />}
+          />
+          <Route
+            path="/quizzes"
+            element={<ProtectedRoute element={<ViewQuizzesPage />} />}
+          />
         </Routes>
       </Providers>
     </BrowserRouter>

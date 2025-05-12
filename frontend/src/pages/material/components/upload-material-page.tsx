@@ -214,6 +214,8 @@ const UploadMaterialPage = () => {
                             }}
                             onUpdate={handleUpdateCategory}
                             onDelete={handleDeleteCategory}
+                            getLabel={(item) => item.name}
+                            getId={(item) => item.id}
                           />
                           <Button
                             type="button"

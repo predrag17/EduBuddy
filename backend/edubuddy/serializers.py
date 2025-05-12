@@ -1,7 +1,7 @@
 # edubuddy/serializers.py
 
 from rest_framework import serializers
-from .models import EduBuddyUser, Role, Material, Quiz, Question, Category, Answer
+from .models import EduBuddyUser, Role, Material, Quiz, Question, Category, Answer, QuizResult, QuestionResult
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -85,3 +85,30 @@ class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         fields = ['id', 'title', 'description', 'questions']
+
+
+class QuestionResultSerializer(serializers.ModelSerializer):
+    question_id = serializers.IntegerField(source='question.id')
+    selected_answer = serializers.CharField()
+    difficulty = serializers.CharField(source='question.difficulty')
+
+    class Meta:
+        model = QuestionResult
+        fields = ['question_id', 'selected_answer', 'difficulty']
+
+
+class QuizResultSummarySerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source='quiz.title')
+    question_results = QuestionResultSerializer(many=True)
+    difficulty = serializers.SerializerMethodField()
+
+    class Meta:
+        model = QuizResult
+        fields = ['id', 'quiz_id', 'title', 'difficulty', 'score', 'total_questions', 'submitted_at',
+                  'question_results']
+
+    def get_difficulty(self, obj):
+        first_question_result = obj.question_results.first()
+        if first_question_result:
+            return first_question_result.question.difficulty
+        return ""
