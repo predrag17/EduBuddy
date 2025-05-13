@@ -16,7 +16,7 @@ from pdf2image import convert_from_path
 from pytesseract import pytesseract
 
 from rest_framework import status
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import NotFound, ValidationError, PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -236,6 +236,22 @@ class MaterialView(APIView):
             return Response({'message': 'Material deleted successfully.'}, status=status.HTTP_200_OK)
         except Material.DoesNotExist:
             raise NotFound(detail="Material not found.")
+
+
+class MaterialDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            material = Material.objects.get(pk=pk)
+        except Material.DoesNotExist:
+            raise NotFound(detail="Material not found.")
+
+        if request.user.role.name != 'ADMIN' and material.user != request.user:
+            raise PermissionDenied("You do not have permission to view this material.")
+
+        serializer = MaterialSerializer(material)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # View for updating user profile info

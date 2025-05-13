@@ -5,7 +5,7 @@ import { snakeToCamel } from "@/utils/case-converter";
 interface UploadMaterialProps {
   subject: string;
   description: string;
-  categoryId: number;
+  category_id: number;
   file: File;
 }
 
@@ -25,7 +25,7 @@ export const uploadMaterial = async (params: UploadMaterialProps) => {
     const formData = new FormData();
     formData.append("subject", params.subject);
     formData.append("description", params.description);
-    formData.append("category_id", params.categoryId.toString());
+    formData.append("category_id", params.category_id.toString());
     formData.append("file", params.file);
 
     const response = await axiosInstance.post("/material", formData, {
@@ -37,6 +37,17 @@ export const uploadMaterial = async (params: UploadMaterialProps) => {
     return response.data;
   } catch (error: any) {
     console.error("Error uploading material.");
+    throw error;
+  }
+};
+
+export const fetchMaterialDetails = async (material_id: number) => {
+  try {
+    const response = await axiosInstance.get(`/material/${material_id}`);
+    console.log(response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching material details", error);
     throw error;
   }
 };

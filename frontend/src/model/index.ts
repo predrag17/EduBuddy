@@ -1,8 +1,8 @@
 export type UserDto = {
   id: number;
   username: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
   roleName: string;
 };
@@ -12,9 +12,9 @@ export type MaterialDto = {
   subject: string;
   description: string;
   file: string;
-  isProcessed: boolean;
+  is_processed: boolean;
   category: CategoryDto;
-  uploadedAt: string;
+  uploaded_at: string;
   user: UserDto;
 };
 

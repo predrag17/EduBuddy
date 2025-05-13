@@ -26,11 +26,11 @@ export default function RegisterForm() {
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
       username: "",
-      firstName: "",
-      lastName: "",
+      first_name: "",
+      last_name: "",
       email: "",
       password: "",
-      confirmPassword: "",
+      confirm_password: "",
     },
   });
 
@@ -40,8 +40,8 @@ export default function RegisterForm() {
     try {
       await register(
         values.username,
-        values.firstName,
-        values.lastName,
+        values.first_name,
+        values.last_name,
         values.email,
         values.password
       );
@@ -92,7 +92,7 @@ export default function RegisterForm() {
             />
             <FormField
               control={form.control}
-              name="firstName"
+              name="first_name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>First Name</FormLabel>
@@ -105,7 +105,7 @@ export default function RegisterForm() {
             />
             <FormField
               control={form.control}
-              name="lastName"
+              name="last_name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Last Name</FormLabel>
@@ -154,7 +154,7 @@ export default function RegisterForm() {
             />
             <FormField
               control={form.control}
-              name="confirmPassword"
+              name="confirm_password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>

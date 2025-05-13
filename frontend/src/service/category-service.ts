@@ -10,10 +10,10 @@ export const getAllCategories = async () => {
   }
 };
 
-export const createCategory = async (categoryName: string) => {
+export const createCategory = async (category_name: string) => {
   try {
     const response = await axiosInstance.post("/category", {
-      name: categoryName,
+      name: category_name,
     });
 
     return response.data;
