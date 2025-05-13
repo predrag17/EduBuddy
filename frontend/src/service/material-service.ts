@@ -1,6 +1,4 @@
 import axiosInstance from "@/config/axiosInstance";
-import { MaterialDto } from "@/model";
-import { snakeToCamel } from "@/utils/case-converter";
 
 interface UploadMaterialProps {
   subject: string;
@@ -12,8 +10,7 @@ interface UploadMaterialProps {
 export const fetchAllMaterials = async () => {
   try {
     const response = await axiosInstance.get("/material");
-    const materials: MaterialDto[] = snakeToCamel(response.data);
-    return materials;
+    return response.data;
   } catch (error: any) {
     console.error("Error fetching materials", error);
     throw error;

@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { MaterialDto } from "@/model";
 import { format } from "date-fns";
+import MaterialActions from "./material-actions";
 
 export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
   const baseColumns: ColumnDef<MaterialDto>[] = [
@@ -56,7 +57,7 @@ export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
       },
     },
     {
-      accessorKey: "isProcessed",
+      accessorKey: "is_processed",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -84,7 +85,7 @@ export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
       },
     },
     {
-      accessorKey: "uploadedAt",
+      accessorKey: "uploaded_at",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -95,12 +96,20 @@ export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
         </Button>
       ),
       cell: ({ row }) => {
-        const uploadedAt = row.original.uploadedAt;
+        const uploadedAt = row.original.uploaded_at;
         const formattedDate = format(
           new Date(uploadedAt),
           "d MMMM yyyy, HH:mm:ss"
         );
         return formattedDate;
+      },
+    },
+    {
+      id: "actions",
+      header: () => <Button variant="ghost">Actions</Button>,
+      cell: ({ row }) => {
+        const material_id = row.original.id;
+        return <MaterialActions material_id={material_id} />;
       },
     },
   ];
