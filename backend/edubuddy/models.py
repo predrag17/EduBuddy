@@ -21,6 +21,25 @@ class EduBuddyUser(AbstractUser):
     REQUIRED_FIELDS = ["first_name", "last_name"]
 
 
+class Conversation(models.Model):
+    user = models.ForeignKey(EduBuddyUser, on_delete=models.CASCADE, related_name='conversations')
+    title = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Conversation {self.id} - {self.user.email}"
+
+
+class ChatMessage(models.Model):
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
+    sender = models.CharField(max_length=10)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender}: {self.message[:30]}"
+
+
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
 

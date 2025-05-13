@@ -2,10 +2,12 @@ from django.urls import path
 from . import views
 from .views import MaterialView, UpdateUserView, CategoryView, \
     CategoryDetailView, GenerateQuestionsView, DownloadQuizResultView, QuizResultSummaryView, SaveQuizResultView, \
-    MaterialDetailView
+    MaterialDetailView, ConversationListView, ChatMessagesView
 
 urlpatterns = [
     path('chatbot/message', views.ChatbotMessageView.as_view(), name='chatbot_message'),
+    path('chatbot/messages/<int:conversation_id>', ChatMessagesView.as_view(), name='chatbot_messages'),
+    path('chatbot/conversations', ConversationListView.as_view(), name='chatbot_conversations'),
     path('register', views.RegisterUserView.as_view(), name='register'),
     path('login', views.UserLoginView.as_view(), name='login'),
     path('logout', views.UserLogoutView.as_view(), name='logout'),
@@ -22,5 +24,4 @@ urlpatterns = [
     path('quizzes/<int:quiz_id>/download-result', DownloadQuizResultView.as_view(), name='download-quiz-result'),
     path('quizzes/results', QuizResultSummaryView.as_view(), name='quiz-results-summary'),
     path('quiz-result/create', SaveQuizResultView.as_view(), name='quiz-results-create'),
-
 ]

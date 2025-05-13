@@ -1,12 +1,40 @@
 import axiosInstance from "@/config/axiosInstance";
+import { ConversationDto } from "@/model";
 
-export const createAnswer = async (message: string) => {
+export const createAnswer = async (
+  message: string,
+  selectedConversation: number | null
+) => {
   try {
-    const response = await axiosInstance.post("/chatbot/message", { message });
-
-    return response.data.message;
+    const response = await axiosInstance.post("/chatbot/message", {
+      message,
+      conversation_id: selectedConversation,
+    });
+    return response.data.message.message;
   } catch (error: any) {
     console.error("Error creating answer", error);
+    throw error;
+  }
+};
+
+export const fetchMessages = async (conversation_id: number) => {
+  try {
+    const response = await axiosInstance.get(
+      `/chatbot/messages/${conversation_id}`
+    );
+    return response.data.messages;
+  } catch (error: any) {
+    console.error("Error fetching messages", error);
+    throw error;
+  }
+};
+
+export const fetchConversations = async (): Promise<ConversationDto[]> => {
+  try {
+    const response = await axiosInstance.get("/chatbot/conversations");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
     throw error;
   }
 };
