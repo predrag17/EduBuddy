@@ -36,8 +36,8 @@ const EditUserDialog = ({ isDialogOpen, onDialogClose }: EditUserDialog) => {
   const form = useForm<z.infer<typeof UserSchema>>({
     resolver: zodResolver(UserSchema),
     defaultValues: {
-      firstName: auth?.user?.firstName || "",
-      lastName: auth?.user?.lastName || "",
+      first_name: auth?.user?.first_name || "",
+      last_name: auth?.user?.last_name || "",
       username: auth?.user?.username || "",
       email: auth?.user?.email || "",
     },
@@ -74,7 +74,7 @@ const EditUserDialog = ({ isDialogOpen, onDialogClose }: EditUserDialog) => {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="firstName"
+                    name="first_name"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>First name</FormLabel>
@@ -91,7 +91,7 @@ const EditUserDialog = ({ isDialogOpen, onDialogClose }: EditUserDialog) => {
                   />
                   <FormField
                     control={form.control}
-                    name="lastName"
+                    name="last_name"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Last name</FormLabel>

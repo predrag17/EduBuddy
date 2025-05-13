@@ -14,6 +14,7 @@ import UploadMaterialPage from "./pages/material/components/upload-material-page
 import Quiz from "./pages/quiz/quiz.tsx";
 import StartQuizPage from "./pages/quiz/components/start-quiz-page.tsx";
 import ViewQuizzesPage from "./pages/quiz/components/view-quizzes-page.tsx";
+import MaterialView from "./pages/material/material-view.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -44,6 +45,10 @@ createRoot(document.getElementById("root")!).render(
           <Route
             path="/quizzes"
             element={<ProtectedRoute element={<ViewQuizzesPage />} />}
+          />
+          <Route
+            path="/material/:material_id"
+            element={<ProtectedRoute element={<MaterialView />} />}
           />
         </Routes>
       </Providers>

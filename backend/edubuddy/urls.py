@@ -1,7 +1,8 @@
 from django.urls import path
 from . import views
 from .views import MaterialView, UpdateUserView, CategoryView, \
-    CategoryDetailView, GenerateQuestionsView, DownloadQuizResultView, QuizResultSummaryView, SaveQuizResultView
+    CategoryDetailView, GenerateQuestionsView, DownloadQuizResultView, QuizResultSummaryView, SaveQuizResultView, \
+    MaterialDetailView
 
 urlpatterns = [
     path('chatbot/message', views.ChatbotMessageView.as_view(), name='chatbot_message'),
@@ -13,6 +14,7 @@ urlpatterns = [
     path('category/update/<int:pk>', CategoryDetailView.as_view(), name='category-detail'),
     path('category/delete/<int:pk>', CategoryDetailView.as_view(), name='category-detail'),
     path('material', MaterialView.as_view()),
+    path('material/<int:pk>', MaterialDetailView.as_view()),
     path('material/update/<int:pk>', MaterialView.as_view()),
     path('material/delete/<int:pk>', MaterialView.as_view()),
     path('user/update', UpdateUserView.as_view(), name='update-user'),

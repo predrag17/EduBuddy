@@ -49,7 +49,7 @@ const ProfilePage = () => {
           <div>
             <h2 className="text-xl font-medium text-fuchsia-300">Full Name</h2>
             <p className="text-lg text-indigo-200">
-              {auth.user.firstName} {auth.user.lastName}
+              {auth.user.first_name} {auth.user.last_name}
             </p>
           </div>
           <div>

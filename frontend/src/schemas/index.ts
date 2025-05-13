@@ -5,10 +5,10 @@ export const RegisterSchema = z
     username: z.string().min(1, {
       message: "Корисничко име е задолжително",
     }),
-    firstName: z.string().min(1, {
+    first_name: z.string().min(1, {
       message: "Името е задолжително",
     }),
-    lastName: z.string().min(1, {
+    last_name: z.string().min(1, {
       message: "Презимето е задолжително",
     }),
     email: z.string().email({
@@ -25,11 +25,11 @@ export const RegisterSchema = z
       .regex(/[!@#$%^&*(),.?":{}|<>]/, {
         message: "Лозинката мора да содржи барем еден специјален знак",
       }),
-    confirmPassword: z.string(),
+    confirm_password: z.string(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.password === data.confirm_password, {
     message: "Лозинките не се совпаѓаат",
-    path: ["confirmPassword"],
+    path: ["confirm_password"],
   });
 
 export const LoginSchema = z.object({
@@ -42,10 +42,10 @@ export const LoginSchema = z.object({
 });
 
 export const UserSchema = z.object({
-  firstName: z.string().min(1, {
+  first_name: z.string().min(1, {
     message: "Името е задолжително",
   }),
-  lastName: z.string().min(1, {
+  last_name: z.string().min(1, {
     message: "Презимето е задолжително",
   }),
   username: z.string().min(1, {
@@ -59,6 +59,6 @@ export const UserSchema = z.object({
 export const UploadMaterialSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   description: z.string().min(1, "Description is required"),
-  categoryId: z.number().min(1, "Category is required"),
+  category_id: z.number().min(1, "Category is required"),
   file: z.instanceof(File, { message: "File is required" }),
 });
