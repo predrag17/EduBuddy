@@ -1,7 +1,8 @@
 # edubuddy/serializers.py
 
 from rest_framework import serializers
-from .models import EduBuddyUser, Role, Material, Quiz, Question, Category, Answer, QuizResult, QuestionResult
+from .models import EduBuddyUser, Role, Material, Quiz, Question, Category, Answer, QuizResult, QuestionResult, \
+    Conversation, ChatMessage
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -33,6 +34,25 @@ class UserSerializer(serializers.ModelSerializer):
             user.set_password(password)
         user.save()
         return user
+
+
+class ConversationSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    title = serializers.CharField(max_length=255, required=False)
+
+    class Meta:
+        model = Conversation
+        fields = ['id', 'user', 'created_at', 'title']
+
+
+class ChatMessageSerializer(serializers.ModelSerializer):
+    conversation = ConversationSerializer()
+    sender = serializers.CharField(max_length=10)
+    message = serializers.CharField()
+
+    class Meta:
+        model = ChatMessage
+        fields = ['id', 'conversation', 'sender', 'message', 'timestamp']
 
 
 class CategorySerializer(serializers.ModelSerializer):

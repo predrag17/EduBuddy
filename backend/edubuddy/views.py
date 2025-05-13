@@ -1,6 +1,7 @@
 import io
 import json
 import os
+from datetime import datetime
 
 import pdfplumber
 import re
@@ -25,10 +26,11 @@ from rest_framework.views import APIView
 
 from knox.models import AuthToken
 
-from .models import EduBuddyUser, Material, Quiz, Question, Category, Answer, QuizResult, QuestionResult
+from .models import EduBuddyUser, Material, Quiz, Question, Category, Answer, QuizResult, QuestionResult, ChatMessage, \
+    Conversation
 
 from .serializers import UserSerializer, MaterialSerializer, QuizSerializer, \
-    CategorySerializer, QuizResultSummarySerializer
+    CategorySerializer, QuizResultSummarySerializer, ConversationSerializer, ChatMessageSerializer
 
 from edubuddy.management.commands.query_data import query_rag
 
@@ -39,23 +41,69 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-# Class-based view for the chatbot endpoint
 class ChatbotMessageView(APIView):
     def post(self, request):
         try:
             data = json.loads(request.body)
             message = data.get('message', '')
+            conversation_id = data.get('conversation_id')
+            if conversation_id:
+                conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+            else:
+                conversation = Conversation.objects.create(user=request.user)
+                unique_title = f"Conversation - {conversation.id}"
+                conversation.title = unique_title
+                conversation.save()
+
+            ChatMessage.objects.create(
+                conversation=conversation,
+                sender='user',
+                message=message
+            )
 
             response = query_rag(message)
 
-            return JsonResponse({
-                'message': response
-            }, status=200)
+            bot_message = ChatMessage.objects.create(
+                conversation=conversation,
+                sender='bot',
+                message=response
+            )
+
+            serialized_message = ChatMessageSerializer(bot_message)
+
+            return Response({
+                'message': serialized_message.data
+            }, status=status.HTTP_200_OK)
+
         except Exception as e:
-            return JsonResponse({
+            return Response({
                 'status': 'error',
                 'message': str(e)
-            }, status=500)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ConversationListView(APIView):
+    def get(self, request):
+        conversations = Conversation.objects.filter(user=request.user).order_by('-created_at')
+
+        serialized_conversations = ConversationSerializer(conversations, many=True)
+
+        return Response(serialized_conversations.data, status=status.HTTP_200_OK)
+
+
+class ChatMessagesView(APIView):
+    def get(self, request, conversation_id):
+        conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+        messages = conversation.messages.order_by('timestamp')
+        data = [
+            {
+                'sender': msg.sender,
+                'message': msg.message,
+                'timestamp': msg.timestamp,
+            }
+            for msg in messages
+        ]
+        return JsonResponse(data, safe=False)
 
 
 # Class-based view for user registration

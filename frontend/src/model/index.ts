@@ -60,3 +60,18 @@ export type QuizSummaryDto = {
   submitted_at: string;
   question_results: QuestionResultDto[];
 };
+
+export type ConversationDto = {
+  id: number;
+  user: UserDto;
+  created_at: string;
+  title: string;
+};
+
+export type ChatMessageDto = {
+  id: number;
+  conversation: ConversationDto;
+  sender: string;
+  message: string;
+  timestamp: string;
+};
