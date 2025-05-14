@@ -10,7 +10,7 @@ export const createAnswer = async (
       message,
       conversation_id: selectedConversation,
     });
-    return response.data.message.message;
+    return response.data.message;
   } catch (error: any) {
     console.error("Error creating answer", error);
     throw error;
@@ -35,6 +35,18 @@ export const fetchConversations = async (): Promise<ConversationDto[]> => {
     return response.data;
   } catch (error) {
     console.error("Error fetching conversations:", error);
+    throw error;
+  }
+};
+
+export const fetchMessagesForConversation = async (conversation_id: number) => {
+  try {
+    const response = await axiosInstance.get(
+      `/chatbot/messages/${conversation_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching messages for the conversations", error);
     throw error;
   }
 };

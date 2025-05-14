@@ -2,15 +2,15 @@ import axiosInstance from "@/config/axiosInstance";
 
 export const generateQuestions = async ({
   difficulty,
-  selected_material,
+  selectedMaterial,
 }: {
   difficulty: string;
-  selected_material: number;
+  selectedMaterial: number;
 }) => {
   try {
     const response = await axiosInstance.post("/questions", {
       difficulty,
-      material_id: selected_material,
+      material_id: selectedMaterial,
     });
 
     return response.data;
