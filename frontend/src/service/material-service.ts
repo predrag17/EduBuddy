@@ -48,3 +48,16 @@ export const fetchMaterialDetails = async (material_id: number) => {
     throw error;
   }
 };
+
+export const deleteMaterial = async (material_id: number) => {
+  try {
+    const response = await axiosInstance.delete(
+      `/material/delete/${material_id}`
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error deleting material!", error);
+    throw error;
+  }
+};

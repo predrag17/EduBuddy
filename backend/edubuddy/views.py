@@ -280,13 +280,27 @@ class MaterialView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Delete a material
-    def delete(self, request, pk):
+    def delete(self, request, material_id):
         try:
-            material = Material.objects.get(pk=pk)
+            material = Material.objects.get(pk=material_id)
+
+            if material.file and os.path.isfile(material.file.path):
+                os.remove(material.file.path)
+
             material.delete()
-            return Response({'message': 'Material deleted successfully.'}, status=status.HTTP_200_OK)
+
+            call_command("create_database")
+
+            return Response({
+                'message': 'Material deleted successfully.',
+            }, status=status.HTTP_200_OK)
+
         except Material.DoesNotExist:
             raise NotFound(detail="Material not found.")
+        except Exception as e:
+            return Response({
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class MaterialDetailView(APIView):

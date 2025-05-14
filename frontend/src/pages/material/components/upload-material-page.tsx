@@ -63,7 +63,7 @@ const UploadMaterialPage = () => {
     defaultValues: {
       subject: "",
       description: "",
-      categoryId: 0,
+      category_id: 0,
       file: undefined,
     },
   });
@@ -84,7 +84,7 @@ const UploadMaterialPage = () => {
       toast.success("Successfully deleting category.");
       fetchCategories();
       if (!categories.length) {
-        form.setValue("categoryId", 0);
+        form.setValue("category_id", 0);
       }
     } catch (error) {
       toast.error("Error deleting category. Try again!");
@@ -99,7 +99,7 @@ const UploadMaterialPage = () => {
 
       toast.success("Successfully saved");
       setTimeout(() => {
-        navigate("/material");
+        navigate("/materials");
       }, 1500);
     } catch (error) {
       console.error("Upload error:", error);
@@ -199,7 +199,7 @@ const UploadMaterialPage = () => {
 
                 <FormField
                   control={form.control}
-                  name="categoryId"
+                  name="category_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
@@ -210,7 +210,7 @@ const UploadMaterialPage = () => {
                             value={field.value}
                             onChange={(value) => {
                               field.onChange(value);
-                              form.trigger("categoryId");
+                              form.trigger("category_id");
                             }}
                             onUpdate={handleUpdateCategory}
                             onDelete={handleDeleteCategory}

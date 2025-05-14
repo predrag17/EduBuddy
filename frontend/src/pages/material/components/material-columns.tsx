@@ -7,7 +7,11 @@ import { MaterialDto } from "@/model";
 import { format } from "date-fns";
 import MaterialActions from "./material-actions";
 
-export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
+export const materialColumns = (
+  role: string,
+  setSelectedMaterial: (materialDto: MaterialDto) => void,
+  setIsDeleteDialogOpen: (open: boolean) => void
+): ColumnDef<MaterialDto>[] => {
   const baseColumns: ColumnDef<MaterialDto>[] = [
     {
       accessorKey: "subject",
@@ -108,8 +112,13 @@ export const materialColumns = (role: string): ColumnDef<MaterialDto>[] => {
       id: "actions",
       header: () => <Button variant="ghost">Actions</Button>,
       cell: ({ row }) => {
-        const material_id = row.original.id;
-        return <MaterialActions material_id={material_id} />;
+        return (
+          <MaterialActions
+            material={row.original}
+            setSelectedMaterial={setSelectedMaterial}
+            setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+          />
+        );
       },
     },
   ];
