@@ -1,17 +1,41 @@
 import { LoadingSpinner } from "@/components/loading-spinner";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
+import { MaterialDto } from "@/model";
 import EditUserDialog from "@/pages/auth/components/edit-user-dialog";
+import { fetchAllMaterials } from "@/service/material-service";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const ProfilePage = () => {
   const auth = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [materials, setMaterials] = useState<MaterialDto[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  if (!auth?.user) {
-    return <LoadingSpinner />;
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetchAllMaterials();
+        setMaterials(response);
+      } catch (error: any) {
+        console.error("Error fetching materials.", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMaterials();
+  }, [auth?.user]);
+
+  if (!auth?.user && isLoading) {
+    return (
+      <div className="min-h-screen min-w-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return (
@@ -49,16 +73,22 @@ const ProfilePage = () => {
           <div>
             <h2 className="text-xl font-medium text-fuchsia-300">Full Name</h2>
             <p className="text-lg text-indigo-200">
-              {auth.user.first_name} {auth.user.last_name}
+              {auth.user?.first_name} {auth.user?.last_name}
             </p>
           </div>
           <div>
             <h2 className="text-xl font-medium text-fuchsia-300">Username</h2>
-            <p className="text-lg text-indigo-200">{auth.user.username}</p>
+            <p className="text-lg text-indigo-200">{auth.user?.username}</p>
           </div>
           <div>
             <h2 className="text-xl font-medium text-fuchsia-300">Email</h2>
-            <p className="text-lg text-indigo-200">{auth.user.email}</p>
+            <p className="text-lg text-indigo-200">{auth.user?.email}</p>
+          </div>
+          <div>
+            <h2 className="text-xl font-medium text-fuchsia-300">
+              Total uploaded materials
+            </h2>
+            <p className="text-lg text-indigo-200">{materials.length}</p>
           </div>
         </div>
 
