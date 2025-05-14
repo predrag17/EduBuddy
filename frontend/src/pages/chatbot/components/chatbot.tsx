@@ -4,11 +4,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sun, Moon, History, Plus, Send } from "lucide-react";
+import { Sun, Moon, History, Plus, Send, View } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Navbar } from "@/components/navbar";
-import { createAnswer, fetchConversations } from "@/service/chatbot-service";
-import { ConversationDto } from "@/model";
+import {
+  createAnswer,
+  fetchConversations,
+  fetchMessagesForConversation,
+} from "@/service/chatbot-service";
+import { ChatMessageDto, ConversationDto } from "@/model";
+import toast from "react-hot-toast";
+import { LoadingSpinner } from "@/components/loading-spinner";
 
 export default function Chatbot() {
   const [messages, setMessages] = useState<{ user: string; bot: string }[]>([]);
@@ -22,6 +28,7 @@ export default function Chatbot() {
   const [selectedConversation, setSelectedConversation] = useState<
     number | null
   >(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { theme, setTheme } = useTheme();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -61,15 +68,20 @@ export default function Chatbot() {
 
     try {
       const startTime = performance.now();
-      const response = await createAnswer(input, selectedConversation);
+      const response: ChatMessageDto = await createAnswer(
+        input,
+        selectedConversation
+      );
       const endTime = performance.now();
       const totalTime = ((endTime - startTime) / 1000).toFixed(2);
 
       clearInterval(timerRef.current!);
-
+      setSelectedConversation(response.conversation.id);
       setMessages((prev) => {
         const updated = [...prev];
-        updated[updated.length - 1].bot = `${response} (⏱ ${totalTime}s)`;
+        updated[
+          updated.length - 1
+        ].bot = `${response.message} (⏱ ${totalTime}s)`;
         return updated;
       });
     } catch (error) {
@@ -93,7 +105,43 @@ export default function Chatbot() {
     setSelectedConversation(null);
   };
 
-  if (!mounted) return null;
+  const loadConversationMessages = async (conversationId: number) => {
+    setMessages([]);
+    setIsLoading(true);
+    try {
+      const conversationMessages: ChatMessageDto[] =
+        await fetchMessagesForConversation(conversationId);
+
+      const mappedMessages = conversationMessages.reduce<
+        { user: string; bot: string }[]
+      >((acc, curr) => {
+        if (curr.sender === "user") {
+          acc.push({ user: curr.message, bot: "" });
+        } else if (curr.sender === "bot" && acc.length > 0) {
+          acc[acc.length - 1].bot = curr.message;
+        }
+        return acc;
+      }, []);
+
+      setSelectedConversation(conversationId);
+      setMessages(mappedMessages);
+    } catch (error: any) {
+      console.error("Error fetching messages", error);
+      toast.error("Error fetching messages for this conversation!");
+      setMessages([]);
+      setSelectedConversation(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!mounted || isLoading) {
+    return (
+      <div className="min-h-screen min-w-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -267,6 +315,13 @@ export default function Chatbot() {
                       className="flex justify-between items-center cursor-pointer"
                     >
                       <span>{conversation.title}</span>
+                      <Button
+                        onClick={() =>
+                          loadConversationMessages(conversation.id)
+                        }
+                      >
+                        <View />
+                      </Button>
                     </li>
                   ))}
                 </ul>

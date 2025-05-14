@@ -1,11 +1,11 @@
 import io
 import json
 import os
-from datetime import datetime
 
 import pdfplumber
 import re
 
+from django.core.exceptions import ObjectDoesNotExist
 from openai import OpenAI
 
 from django.core.management import call_command
@@ -44,9 +44,8 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 class ChatbotMessageView(APIView):
     def post(self, request):
         try:
-            data = json.loads(request.body)
-            message = data.get('message', '')
-            conversation_id = data.get('conversation_id')
+            message = request.data.get('message')
+            conversation_id = request.data.get('conversation_id')
             if conversation_id:
                 conversation = Conversation.objects.get(id=conversation_id, user=request.user)
             else:
@@ -93,17 +92,21 @@ class ConversationListView(APIView):
 
 class ChatMessagesView(APIView):
     def get(self, request, conversation_id):
-        conversation = Conversation.objects.get(id=conversation_id, user=request.user)
-        messages = conversation.messages.order_by('timestamp')
-        data = [
-            {
-                'sender': msg.sender,
-                'message': msg.message,
-                'timestamp': msg.timestamp,
-            }
-            for msg in messages
-        ]
-        return JsonResponse(data, safe=False)
+        try:
+            conversation = Conversation.objects.get(id=conversation_id, user=request.user)
+            messages = conversation.messages.order_by('timestamp')
+            serializer = ChatMessageSerializer(messages, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return JsonResponse(
+                {"error": "Conversation not found or access denied."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return JsonResponse(
+                {"error": "An unexpected error occurred.", "details": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 # Class-based view for user registration
