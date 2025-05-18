@@ -50,3 +50,19 @@ export const fetchMessagesForConversation = async (conversation_id: number) => {
     throw error;
   }
 };
+
+export const fetchTTS = async (text: string) => {
+  try {
+    const response = await axiosInstance.post(
+      `/tts`,
+      { text },
+      {
+        responseType: "blob",
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching TTS audio", error);
+    throw error;
+  }
+};

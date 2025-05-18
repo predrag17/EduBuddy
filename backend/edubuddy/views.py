@@ -1,16 +1,16 @@
 import io
-import json
 import os
+import wave
 
 import pdfplumber
 import re
 
 from django.core.exceptions import ObjectDoesNotExist
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
 
 from django.core.management import call_command
 from django.contrib.auth import authenticate
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, StreamingHttpResponse
 from dotenv import load_dotenv
 
 from pdf2image import convert_from_path
@@ -39,6 +39,51 @@ from reportlab.pdfgen import canvas
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+openai = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+
+async def generate_audio_stream(text: str, instructions: str = None):
+    wav_buffer = io.BytesIO()
+    wav_file = wave.open(wav_buffer, 'wb')
+
+    sample_rate = 24000
+    wav_file.setnchannels(1)
+    wav_file.setsampwidth(2)
+    wav_file.setframerate(sample_rate)
+
+    wav_file.writeframes(b'')
+
+    wav_buffer.seek(0)
+    header = wav_buffer.getvalue()
+    wav_buffer.close()
+
+    yield header
+
+    async with openai.audio.speech.with_streaming_response.create(
+            model="gpt-4o-mini-tts",
+            voice="alloy",
+            input=text,
+            instructions=instructions or "",
+            response_format="pcm"
+    ) as response:
+        async for chunk in response.iter_bytes(1024):
+            yield chunk
+
+
+class TextToSpeechView(APIView):
+    def post(self, request):
+        text = request.data.get("text")
+        if not text:
+            return Response({"error": "Text is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        audio_stream = generate_audio_stream(text)
+
+        return StreamingHttpResponse(
+            audio_stream,
+            content_type="audio/wav",
+            headers={"Content-Disposition": "inline; filename=tts.wav"}
+        )
 
 
 class ChatbotMessageView(APIView):
@@ -109,7 +154,6 @@ class ChatMessagesView(APIView):
             )
 
 
-# Class-based view for user registration
 class RegisterUserView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -121,7 +165,6 @@ class RegisterUserView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Class-based view for user login
 class UserLoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -147,7 +190,6 @@ class UserLoginView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Class-based view for user logout (authenticated)
 class UserLogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -159,7 +201,6 @@ class UserLogoutView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# Class-based view for authenticate user (check if user is logged in)
 class AuthenticateUserView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -177,13 +218,11 @@ class AuthenticateUserView(APIView):
 class CategoryView(APIView):
     permission_classes = [IsAuthenticated]
 
-    # Retrieve all categories
     def get(self, request):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # Create a new category
     def post(self, request):
         serializer = CategorySerializer(data=request.data)
         if serializer.is_valid():
@@ -195,7 +234,6 @@ class CategoryView(APIView):
 class CategoryDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    # Retrieve a single category by its ID
     def get(self, request, pk):
         try:
             category = Category.objects.get(pk=pk)
@@ -205,7 +243,6 @@ class CategoryDetailView(APIView):
         serializer = CategorySerializer(category)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # Update an existing category by its ID
     def put(self, request, pk):
         try:
             category = Category.objects.get(pk=pk)
@@ -218,7 +255,6 @@ class CategoryDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # Delete a category by its ID
     def delete(self, request, pk):
         try:
             category = Category.objects.get(pk=pk)
@@ -232,12 +268,10 @@ class CategoryDetailView(APIView):
             raise NotFound(detail="Category not found.")
 
 
-# Class-based view for CRUD operations on Material
 class MaterialView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser)
 
-    # Retrieve all materials
     def get(self, request):
         if request.user.role.name == 'ADMIN':
             materials = Material.objects.all()
@@ -247,7 +281,6 @@ class MaterialView(APIView):
         serializer = MaterialSerializer(materials, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # Create a material
     def post(self, request):
         serializer = MaterialSerializer(data=request.data)
 
@@ -266,7 +299,6 @@ class MaterialView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # Update an existing material
     def put(self, request, pk):
         try:
             material = Material.objects.get(pk=pk)
@@ -279,7 +311,6 @@ class MaterialView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # Delete a material
     def delete(self, request, material_id):
         try:
             material = Material.objects.get(pk=material_id)
@@ -319,7 +350,6 @@ class MaterialDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# View for updating user profile info
 class UpdateUserView(APIView):
     permission_classes = [IsAuthenticated]
 

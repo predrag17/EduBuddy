@@ -4,13 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sun, Moon, History, Plus, Send, View } from "lucide-react";
+import { Sun, Moon, History, Plus, Send, View, Volume } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Navbar } from "@/components/navbar";
 import {
   createAnswer,
   fetchConversations,
   fetchMessagesForConversation,
+  fetchTTS,
 } from "@/service/chatbot-service";
 import { ChatMessageDto, ConversationDto } from "@/model";
 import toast from "react-hot-toast";
@@ -29,10 +30,12 @@ export default function Chatbot() {
     number | null
   >(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const { theme, setTheme } = useTheme();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -135,6 +138,29 @@ export default function Chatbot() {
     }
   };
 
+  const handleTTS = async (text: string) => {
+    setIsSpeaking(true);
+    try {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+
+      const blob = await fetchTTS(text);
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      await audio.play().catch((error) => {
+        console.error("Audio playback failed:", error);
+        throw error;
+      });
+    } catch (error) {
+      console.error("Failed to play TTS:", error);
+    } finally {
+      setIsSpeaking(false);
+    }
+  };
+
   if (!mounted || isLoading) {
     return (
       <div className="min-h-screen min-w-screen flex flex-col items-center justify-start bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
@@ -165,7 +191,6 @@ export default function Chatbot() {
             : "bg-gray-100 border-gray-300"
         }`}
       >
-        {/* Header */}
         <div className="flex justify-between items-center mb-4 mt-4">
           <div className="flex items-center gap-2">
             <h2 className="text-2xl font-bold">🤖 EduBuddy</h2>
@@ -192,7 +217,6 @@ export default function Chatbot() {
           </div>
         </div>
 
-        {/* Chat Area */}
         <ScrollArea className="flex-1 p-4 rounded-lg space-y-4 overflow-y-auto bg-transparent scrollbar-hide">
           {messages.map((msg, index) => (
             <motion.div
@@ -232,6 +256,16 @@ export default function Chatbot() {
                       "..."
                     ))}
                 </div>
+                {msg.bot && (
+                  <Button
+                    onClick={() => handleTTS(msg.bot)}
+                    className="mt-1 ml-2 hover:text-blue-500 transition-colors"
+                    title="Play message"
+                    disabled={isSpeaking}
+                  >
+                    <Volume />
+                  </Button>
+                )}
               </div>
             </motion.div>
           ))}
@@ -316,9 +350,10 @@ export default function Chatbot() {
                     >
                       <span>{conversation.title}</span>
                       <Button
-                        onClick={() =>
-                          loadConversationMessages(conversation.id)
-                        }
+                        onClick={() => {
+                          loadConversationMessages(conversation.id);
+                          setHistoryOpen(false);
+                        }}
                       >
                         <View />
                       </Button>

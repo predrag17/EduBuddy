@@ -53,11 +53,9 @@ class Material(models.Model):
     file = models.FileField(upload_to='data/')
     is_processed = models.BooleanField(default=False)
 
-    # Timestamp
     uploaded_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Relationships
     user = models.ForeignKey(EduBuddyUser, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
 
