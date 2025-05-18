@@ -31,6 +31,8 @@ export default function Chatbot() {
   >(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isFetchingAudio, setIsFetchingAudio] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   const { theme, setTheme } = useTheme();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -139,6 +141,7 @@ export default function Chatbot() {
   };
 
   const handleTTS = async (text: string) => {
+    setIsFetchingAudio(true);
     setIsSpeaking(true);
     try {
       if (audioRef.current) {
@@ -147,16 +150,26 @@ export default function Chatbot() {
       }
 
       const blob = await fetchTTS(text);
+      setIsFetchingAudio(false);
+      setIsPlayingAudio(true);
+
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       audioRef.current = audio;
+
+      audio.onended = () => {
+        setIsPlayingAudio(false);
+        setIsSpeaking(false);
+      };
+
       await audio.play().catch((error) => {
         console.error("Audio playback failed:", error);
         throw error;
       });
     } catch (error) {
       console.error("Failed to play TTS:", error);
-    } finally {
+      setIsFetchingAudio(false);
+      setIsPlayingAudio(false);
       setIsSpeaking(false);
     }
   };
@@ -172,12 +185,11 @@ export default function Chatbot() {
   return (
     <div
       className={`min-h-screen min-w-screen flex flex-col items-center justify-start px-4 sm:px-8 md:px-12 lg:px-20 pt-19 relative overflow-hidden transition-all duration-300 ${
-        theme === "dark" ? "bg-black text-white" : "bg-white text-black"
+        theme === "dark" ? "bg-black text-white" : "bg-white text-white"
       }`}
     >
       <Navbar />
 
-      {/* Gradient background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute w-full h-full bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10" />
         <div className="absolute w-96 h-96 bg-blue-500/20 blur-3xl top-1/3 left-1/4 rounded-full" />
@@ -193,7 +205,13 @@ export default function Chatbot() {
       >
         <div className="flex justify-between items-center mb-4 mt-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold">🤖 EduBuddy</h2>
+            <h2
+              className={`text-2xl font-bold ${
+                theme === "dark" ? "text-white" : "text-black"
+              }`}
+            >
+              🤖 EduBuddy
+            </h2>
           </div>
           <div className="flex gap-2">
             <Button
@@ -257,14 +275,30 @@ export default function Chatbot() {
                     ))}
                 </div>
                 {msg.bot && (
-                  <Button
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
                     onClick={() => handleTTS(msg.bot)}
-                    className="mt-1 ml-2 hover:text-blue-500 transition-colors"
+                    className={`mt-1 ml-2 p-2 rounded-full transition-colors relative ${
+                      isSpeaking
+                        ? "cursor-not-allowed opacity-50"
+                        : "hover:text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900"
+                    }`}
                     title="Play message"
                     disabled={isSpeaking}
                   >
-                    <Volume />
-                  </Button>
+                    <motion.div
+                      initial={false}
+                      animate={{ rotate: isSpeaking ? 360 : 0 }}
+                      transition={{
+                        duration: 0.5,
+                        ease: "easeInOut",
+                        repeat: isSpeaking ? Infinity : 0,
+                      }}
+                    >
+                      <Volume className="w-4 h-4" />
+                    </motion.div>
+                  </motion.button>
                 )}
               </div>
             </motion.div>
@@ -272,7 +306,6 @@ export default function Chatbot() {
           <div ref={messagesEndRef} />
         </ScrollArea>
 
-        {/* Input Area */}
         <div
           className={`flex mt-4 gap-2 border-t pt-4 w-full flex-wrap sm:flex-nowrap ${
             theme === "dark" ? "border-gray-700" : "border-gray-300"
@@ -362,6 +395,72 @@ export default function Chatbot() {
                 </ul>
               </div>
             </ScrollArea>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {(isFetchingAudio || isPlayingAudio) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center space-y-6"
+            >
+              {isFetchingAudio ? (
+                <>
+                  <div className="flex justify-center items-center">
+                    <LoadingSpinner />
+                  </div>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Generating audio...
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-center">
+                    <div className="flex items-end gap-1 h-10">
+                      {[...Array(5)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="w-1 bg-blue-500 rounded"
+                          animate={{ height: ["20%", "100%", "30%"] }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            repeatType: "mirror",
+                            delay: i * 0.2,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    EduBuddy is speaking...
+                  </p>
+                  <Button
+                    onClick={() => {
+                      if (audioRef.current) {
+                        audioRef.current.pause();
+                        audioRef.current = null;
+                      }
+                      setIsPlayingAudio(false);
+                      setIsSpeaking(false);
+                    }}
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+                  >
+                    Stop Audio
+                  </Button>
+                </>
+              )}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
