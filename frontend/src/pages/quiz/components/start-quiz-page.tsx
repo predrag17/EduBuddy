@@ -145,7 +145,7 @@ export default function StartQuizPage() {
       const link = document.createElement("a");
       link.href = url;
       const quizTitle = createdQuiz?.title;
-      link.setAttribute("download", `${quizTitle}.pdf`);
+      link.setAttribute("download", `${quizTitle} ${quizId}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();

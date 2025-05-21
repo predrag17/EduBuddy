@@ -602,7 +602,7 @@ class DownloadQuizResultView(APIView):
         width, height = letter
 
         p.setFont("DejaVu-Bold", 11)
-        p.drawString(100, height - 50, f"Quiz Title: {quiz.title}")
+        p.drawString(100, height - 50, f"Quiz Title: {quiz.title} {quiz.id}")
         p.drawString(100, height - 70, f"User: {user.username}")
         p.drawString(100, height - 90, f"Score: {correct} / {total}")
         p.drawString(100, height - 120, "Results:")
