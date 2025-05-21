@@ -70,7 +70,7 @@ const LoginForm = () => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input
                       {...field}

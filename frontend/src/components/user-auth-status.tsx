@@ -5,6 +5,7 @@ import { LogOut, User, UserPen } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useAuth } from "./providers/auth-provider";
 import LogoutDialog from "./logout-dialog";
+import Portal from "./portal";
 
 const UserAuthStatus = () => {
   const auth = useAuth();
@@ -52,36 +53,40 @@ const UserAuthStatus = () => {
           </Button>
 
           {menuOpen && (
-            <div className="absolute right-0 mt-2 w-44 sm:w-48 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700 shadow-xl rounded-lg z-50 animate-fade-in text-sm sm:text-base menu-dropdown">
-              <div className="flex flex-col gap-1 p-2">
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 justify-center w-full border-indigo-400 text-indigo-400 hover:bg-indigo-500 hover:text-white"
-                  onClick={() => {
-                    navigate("/profile");
-                    setMenuOpen(false);
-                  }}
-                >
-                  <UserPen className="w-4 h-4" />
-                  Profile
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 justify-center w-full border-indigo-400 text-indigo-400 hover:bg-indigo-500 hover:text-white"
-                  onClick={() => {
-                    setShowLogoutConfirm(true);
-                    setIsDialogOpen(true);
-                    setMenuOpen(false);
-                  }}
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </Button>
+            <Portal>
+              <div
+                className="fixed right-6 top-19 w-44 sm:w-48 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700 shadow-xl rounded-lg z-[9999] animate-fade-in text-sm sm:text-base"
+                ref={menuRef}
+              >
+                <div className="flex flex-col gap-1 p-2">
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 justify-center w-full border-indigo-400 text-indigo-400 hover:bg-indigo-500 hover:text-white"
+                    onClick={() => {
+                      navigate("/profile");
+                      setMenuOpen(false);
+                    }}
+                  >
+                    <UserPen className="w-4 h-4" />
+                    Profile
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 justify-center w-full border-indigo-400 text-indigo-400 hover:bg-indigo-500 hover:text-white"
+                    onClick={() => {
+                      setShowLogoutConfirm(true);
+                      setIsDialogOpen(true);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </Button>
+                </div>
               </div>
-            </div>
+            </Portal>
           )}
 
-          {/* Logout Confirmation Dialog */}
           {showLogoutConfirm && (
             <LogoutDialog
               isDialogOpen={isDialogOpen}

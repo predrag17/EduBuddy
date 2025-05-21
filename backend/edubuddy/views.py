@@ -16,6 +16,9 @@ from dotenv import load_dotenv
 
 from pdf2image import convert_from_path
 from pytesseract import pytesseract
+from reportlab.lib.utils import simpleSplit
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 from rest_framework import status
 from rest_framework.exceptions import NotFound, ValidationError, PermissionDenied
@@ -27,6 +30,7 @@ from rest_framework.views import APIView
 
 from knox.models import AuthToken
 
+from backend import settings
 from .models import EduBuddyUser, Material, Quiz, Question, Category, Answer, QuizResult, QuestionResult, ChatMessage, \
     Conversation
 
@@ -327,7 +331,7 @@ class MaterialView(APIView):
 
             material.delete()
 
-            call_command("create_database")
+            call_command("create_database", reset=True)
 
             return Response({
                 'message': 'Material deleted successfully.',
@@ -459,11 +463,6 @@ class GenerateQuestionsView(APIView):
             raise Exception(f"Failed to extract text from PDF: {str(e)}")
 
     def generate_questions_with_ai(self, pdf_text, difficulty):
-        """
-        Generate multiple questions using OpenAI's GPT model based on text and difficulty.
-        Automatically detects the language of the input text if needed.
-        Returns a list of question dictionaries with answers.
-        """
         max_text_length = 4000
         truncated_text = pdf_text[:max_text_length]
 
@@ -592,37 +591,47 @@ class DownloadQuizResultView(APIView):
 
             result_rows.append([question_text, selected_answer, correct_answer, result])
 
+        font_path = os.path.join(settings.BASE_DIR, 'fonts', 'DejaVuSans.ttf')
+        pdfmetrics.registerFont(TTFont('DejaVu', font_path))
+        bold_font_path = os.path.join(settings.BASE_DIR, 'fonts', 'DejaVuSans-Bold.ttf')
+        pdfmetrics.registerFont(TTFont('DejaVu-Bold', bold_font_path))
+
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer, pagesize=letter)
         width, height = letter
 
-        p.setFont("Helvetica", 12)
+        p.setFont("DejaVu-Bold", 11)
         p.drawString(100, height - 50, f"Quiz Title: {quiz.title}")
         p.drawString(100, height - 70, f"User: {user.username}")
         p.drawString(100, height - 90, f"Score: {correct} / {total}")
         p.drawString(100, height - 120, "Results:")
 
-        p.setFont("Helvetica", 10)
+        p.setFont("DejaVu", 10)
         y_position = height - 140
 
-        for row in result_rows:
-            question_text = row[0]
-            selected_answer = row[1]
-            correct_answer = row[2]
-            result = row[3]
+        max_width = 400
 
-            p.drawString(100, y_position, f"Question: {question_text}")
+        def draw_wrapped_text(p, text, x, y, font_name, font_size, max_width):
+            lines = simpleSplit(text, font_name, font_size, max_width)
+            for line in lines:
+                p.drawString(x, y, line)
+                y -= font_size + 2
+            return y
+
+        for row in result_rows:
+            question_text = f"Question: {row[0]}"
+            selected_answer = f"Your Answer: {row[1]}"
+            correct_answer = f"Correct Answer: {row[2]}"
+            result = f"Result: {row[3]}"
+
+            for content in [question_text, selected_answer, correct_answer, result]:
+                y_position = draw_wrapped_text(p, content, 100, y_position, "DejaVu", 10, max_width)
+
             y_position -= 20
-            p.drawString(100, y_position, f"Your Answer: {selected_answer}")
-            y_position -= 20
-            p.drawString(100, y_position, f"Correct Answer: {correct_answer}")
-            y_position -= 20
-            p.drawString(100, y_position, f"Result: {result}")
-            y_position -= 40
 
             if y_position < 50:
                 p.showPage()
-                p.setFont("Helvetica", 10)
+                p.setFont("DejaVu", 10)
                 y_position = height - 50
 
         p.showPage()

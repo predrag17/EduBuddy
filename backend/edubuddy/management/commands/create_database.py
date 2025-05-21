@@ -17,15 +17,14 @@ DATA_PATH = os.path.join(BASE_DIR, "data")
 class Command(BaseCommand):
     help = "Populate chroma database from folder data"
 
-    def add_arguments(self, parser):  # Add this to handle the --reset flag
+    def add_arguments(self, parser):
         parser.add_argument("--reset", action="store_true", help="Reset the database.")
 
     def handle(self, *args, **options):
         self.stdout.write("Starting script...")
         self.stdout.write(f"DATA_PATH is: {DATA_PATH}")
 
-        # Move main() logic here
-        if options["reset"]:  # Check the --reset flag
+        if options["reset"]:
             self.clear_database()
         self.generate_data_store()
 
@@ -41,7 +40,6 @@ class Command(BaseCommand):
 
     def load_documents(self):
         try:
-            # Load data from the specified directory DATA_PATH
             document_loader = PyPDFDirectoryLoader(DATA_PATH)
             documents = document_loader.load()
             self.stdout.write(f"Loaded {len(documents)} documents from {DATA_PATH}")
@@ -51,7 +49,6 @@ class Command(BaseCommand):
             return []
 
     def split_documents(self, documents: list[Document]):
-        # Split the pdfs into smaller chunks for better retrieval.
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
             chunk_overlap=200,
@@ -64,20 +61,16 @@ class Command(BaseCommand):
         return chunks
 
     def save_to_chroma(self, chunks: list[Document]):
-        # Load the existing database.
         db = Chroma(
             persist_directory=CHROMA_PATH, embedding_function=get_embedding_function()
         )
 
-        # Calculate Page IDs.
         chunks_with_ids = self.calculate_chunk_ids(chunks)
 
-        # Add or Update the documents.
-        existing_items = db.get(include=[])  # IDs are always included by default
+        existing_items = db.get(include=[])
         existing_ids = set(existing_items["ids"])
         self.stdout.write(f"Number of existing documents in DB: {len(existing_ids)}")
 
-        # Only add documents that don't exist in the DB.
         new_chunks = []
         for chunk in chunks_with_ids:
             if chunk.metadata["id"] not in existing_ids:
@@ -90,8 +83,6 @@ class Command(BaseCommand):
         else:
             self.stdout.write("✅ No new documents to add")
 
-    # This will create IDs like "data/OS.pdf:6:2"
-    # Page Source : Page Number : Chunk:Index
     def calculate_chunk_ids(self, chunks):
         last_page_id = None
         current_chunk_index = 0
@@ -101,17 +92,14 @@ class Command(BaseCommand):
             page = chunk.metadata.get("page")
             current_page_id = f"{source}:{page}"
 
-            # If the page ID is the same as the last one, increment the index.
             if current_page_id == last_page_id:
                 current_chunk_index += 1
             else:
                 current_chunk_index = 0
 
-            # Calculate the chunk ID.
             chunk_id = f"{current_page_id}:{current_chunk_index}"
             last_page_id = current_page_id
 
-            # Add it to the page meta-data.
             chunk.metadata["id"] = chunk_id
 
         return chunks
