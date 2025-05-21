@@ -432,6 +432,7 @@ class GenerateQuestionsView(APIView):
                 text=q_data["text"],
                 difficulty=difficulty
             )
+
             for ans_data in q_data["answers"]:
                 Answer.objects.create(
                     question=question,

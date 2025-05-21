@@ -87,12 +87,15 @@ export default function StartQuizPage() {
   const handleAnswerSelect = (answer: AnswerDto) => {
     setSelectedAnswer(answer.id);
 
-    setSelectedAnswersMap((prev) => ({
-      ...prev,
+    const updatedAnswersMap = {
+      ...selectedAnswersMap,
       [questions[currentQuestionIndex].id]: answer.text,
-    }));
+    };
+
+    setSelectedAnswersMap(updatedAnswersMap);
+
     if (answer.is_correct) {
-      setScore(score + 1);
+      setScore((prevScore) => prevScore + 1);
     }
 
     setTimeout(() => {
@@ -101,12 +104,12 @@ export default function StartQuizPage() {
         setSelectedAnswer(null);
       } else {
         setShowScore(true);
-        saveResults();
+        saveResults(updatedAnswersMap);
       }
     }, 1000);
   };
 
-  const saveResults = async () => {
+  const saveResults = async (answersMap: { [key: number]: string }) => {
     try {
       const quizId = createdQuiz?.id;
       if (!quizId) {
@@ -114,7 +117,7 @@ export default function StartQuizPage() {
         return;
       }
 
-      const questionResults = Object.entries(selectedAnswersMap).map(
+      const questionResults = Object.entries(answersMap).map(
         ([question_id, selected_answer]) => ({
           question_id: Number(question_id),
           selected_answer,
@@ -156,24 +159,20 @@ export default function StartQuizPage() {
     <div className="min-h-screen min-w-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden px-4 sm:px-8 md:px-12 lg:px-20 pt-24 sm:pt-32">
       <Toaster />
 
-      {/* Background Animations */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute w-full h-full bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-pulse" />
         <div className="absolute w-96 h-96 bg-blue-500/20 blur-3xl top-1/3 left-1/4 rounded-full animate-ping" />
         <div className="absolute w-96 h-96 bg-pink-500/20 blur-3xl bottom-1/4 right-1/4 rounded-full animate-ping" />
       </div>
 
-      {/* Navbar */}
       <Navbar />
 
-      {/* Difficulty Selection */}
       {!difficulty && (
         <DifficultySelection
           onDifficultySelect={(level) => setDifficulty(level)}
         />
       )}
 
-      {/* Material Selection */}
       {difficulty && !selectedMaterial && (
         <MaterialSelection
           materials={materials}
@@ -182,7 +181,6 @@ export default function StartQuizPage() {
         />
       )}
 
-      {/* Quiz Logic */}
       {difficulty && selectedMaterial && !showScore && (
         <QuizLogic
           questions={questions}
@@ -193,7 +191,6 @@ export default function StartQuizPage() {
         />
       )}
 
-      {/* Show Score */}
       {showScore && (
         <ShowScore
           score={score}
