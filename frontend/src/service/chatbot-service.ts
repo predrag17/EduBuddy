@@ -10,6 +10,7 @@ export const createAnswer = async (
       message,
       conversation_id: selectedConversation,
     });
+    console.log(response)
     return response.data.message;
   } catch (error: any) {
     console.error("Error creating answer", error);

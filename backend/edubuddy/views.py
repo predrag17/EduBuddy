@@ -5,6 +5,7 @@ import wave
 import pdfplumber
 import re
 
+from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from openai import OpenAI, AsyncOpenAI
 
@@ -91,32 +92,38 @@ class ChatbotMessageView(APIView):
         try:
             message = request.data.get('message')
             conversation_id = request.data.get('conversation_id')
-            if conversation_id:
-                conversation = Conversation.objects.get(id=conversation_id, user=request.user)
-            else:
-                conversation = Conversation.objects.create(user=request.user)
-                unique_title = f"Conversation - {conversation.id}"
-                conversation.title = unique_title
-                conversation.save()
+            user = request.user
 
-            ChatMessage.objects.create(
-                conversation=conversation,
-                sender='user',
-                message=message
-            )
+            if user is not None and not isinstance(user, AnonymousUser) and user.is_authenticated:
+                if conversation_id:
+                    conversation = Conversation.objects.get(id=conversation_id, user=user)
+                else:
+                    conversation = Conversation.objects.create(user=user)
+                    conversation.title = f"Conversation - {conversation.id}"
+                    conversation.save()
+
+                ChatMessage.objects.create(
+                    conversation=conversation,
+                    sender='user',
+                    message=message
+                )
 
             response = query_rag(message)
 
-            bot_message = ChatMessage.objects.create(
-                conversation=conversation,
-                sender='bot',
-                message=response
-            )
-
-            serialized_message = ChatMessageSerializer(bot_message)
+            if user is not None and not isinstance(user, AnonymousUser) and user.is_authenticated:
+                bot_message = ChatMessage.objects.create(
+                    conversation=conversation,
+                    sender='bot',
+                    message=response
+                )
+                serialized_message = ChatMessageSerializer(bot_message)
+                return Response({'message': serialized_message.data}, status=status.HTTP_200_OK)
 
             return Response({
-                'message': serialized_message.data
+                'message': {
+                    'sender': 'bot',
+                    'message': response
+                }
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
@@ -432,7 +439,6 @@ class GenerateQuestionsView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def extract_pdf_text(self, pdf_path):
-        """Extract text from a PDF file."""
         text = ""
         try:
             with pdfplumber.open(pdf_path) as pdf:

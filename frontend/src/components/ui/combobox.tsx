@@ -18,6 +18,7 @@ import {
 import { useState } from "react";
 
 interface ComboboxProps<T> {
+  title?: string;
   options: T[];
   value?: number;
   onChange: (value: number) => void;
@@ -28,6 +29,7 @@ interface ComboboxProps<T> {
 }
 
 export const Combobox = <T,>({
+  title,
   options,
   value,
   onChange,
@@ -82,29 +84,33 @@ export const Combobox = <T,>({
                     </div>
 
                     <div className="flex space-x-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onUpdate(option);
-                        }}
-                        className="p-1"
-                      >
-                        <Edit className="h-2 w-2" />
-                      </Button>
+                      {title != "material" && (
+                        <>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onUpdate(option);
+                            }}
+                            className="p-1"
+                          >
+                            <Edit className="h-2 w-2" />
+                          </Button>
 
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDelete(optionId);
-                        }}
-                        className="p-1"
-                      >
-                        <Trash className="h-2 w-2" />
-                      </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDelete(optionId);
+                            }}
+                            className="p-1"
+                          >
+                            <Trash className="h-2 w-2" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </CommandItem>
                 );

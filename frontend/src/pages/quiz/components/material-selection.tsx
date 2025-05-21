@@ -29,6 +29,7 @@ export const MaterialSelection = ({
     >
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Choose Material</h1>
       <Combobox
+        title={"material"}
         options={materials}
         value={selectedMaterial ?? undefined}
         onChange={onMaterialChange}

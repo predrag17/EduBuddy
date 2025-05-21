@@ -16,8 +16,10 @@ import {
 import { ChatMessageDto, ConversationDto } from "@/model";
 import toast from "react-hot-toast";
 import { LoadingSpinner } from "@/components/loading-spinner";
+import { useAuth } from "@/components/providers/auth-provider";
 
 export default function Chatbot() {
+  const auth = useAuth();
   const [messages, setMessages] = useState<{ user: string; bot: string }[]>([]);
   const [input, setInput] = useState("");
   const [processing, setProcessing] = useState(false);
@@ -41,8 +43,10 @@ export default function Chatbot() {
 
   useEffect(() => {
     setMounted(true);
-    loadConversations();
-  }, []);
+    if (auth?.user) {
+      loadConversations();
+    }
+  }, [auth?.user]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -81,7 +85,9 @@ export default function Chatbot() {
       const totalTime = ((endTime - startTime) / 1000).toFixed(2);
 
       clearInterval(timerRef.current!);
-      setSelectedConversation(response.conversation.id);
+
+      if (auth?.user) setSelectedConversation(response.conversation.id);
+
       setMessages((prev) => {
         const updated = [...prev];
         updated[
@@ -214,13 +220,16 @@ export default function Chatbot() {
             </h2>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              onClick={() => setHistoryOpen(true)}
-              className="p-2 rounded-full"
-            >
-              <History className="w-6 h-6" />
-            </Button>
+            {auth?.user && (
+              <Button
+                variant="ghost"
+                onClick={() => setHistoryOpen(true)}
+                className="p-2 rounded-full"
+              >
+                <History className="w-6 h-6" />
+              </Button>
+            )}
+
             <Button
               variant="ghost"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
