@@ -26,7 +26,8 @@ export const ShowScore = ({
       <p className="text-lg sm:text-xl">
         Your Score: {score} / {totalQuestions}
       </p>
-      <div className="flex flex-col sm:flex-row gap-4 mt-6">
+
+      <div className="flex flex-col items-center justify-center sm:flex-row gap-4 mt-6">
         <Link to="/quizzes">
           <Button variant="default" className="w-full sm:w-auto">
             All Quizzes
@@ -39,7 +40,7 @@ export const ShowScore = ({
           </Button>
         </Link>
       </div>
-      <div className="flex justify-center mt-3">
+      <div className="flex justify-center items-center gap-3 mt-3">
         <Card
           onClick={onDownload}
           className="bg-indigo-500/10 p-6 w-64 sm:w-72 text-center rounded-2xl border border-indigo-400/30"
@@ -51,6 +52,21 @@ export const ShowScore = ({
             </h3>
             <p className="text-sm opacity-80 text-gray-300">
               Download your quiz so you can see your results
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card
+          onClick={() => location.reload()}
+          className="bg-indigo-500/10 p-6 w-64 sm:w-72 text-center rounded-2xl border border-indigo-400/30"
+        >
+          <CardContent>
+            <Sparkles className="w-10 h-10 mx-auto text-indigo-400 mb-4" />
+            <h3 className="text-lg sm:text-xl font-semibold text-indigo-300">
+              Start Quiz
+            </h3>
+            <p className="text-sm opacity-80 text-gray-300">
+              If you're not happy with your score, start a new quiz.
             </p>
           </CardContent>
         </Card>

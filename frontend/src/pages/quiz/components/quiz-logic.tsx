@@ -40,17 +40,11 @@ export const QuizLogic = ({
                 {questions[currentQuestionIndex].answers.map((answer) => (
                   <Button
                     key={answer.id}
-                    className={`w-full text-sm sm:text-base p-10 whitespace-normal break-words ${
-                      selectedAnswer === answer.id
-                        ? answer.is_correct
-                          ? "bg-green-500"
-                          : "bg-red-500"
-                        : ""
-                    } transition-all`}
+                    className={`w-full text-sm sm:text-base text-center whitespace-normal break-words rounded-lg bg-black/70 hover:bg-black/80 transition-all min-h-[3.5rem]`}
                     onClick={() => onAnswerSelect(answer)}
                     disabled={selectedAnswer !== null}
                   >
-                    {answer.text}
+                    <span className="block text-wrap">{answer.text}</span>
                   </Button>
                 ))}
               </div>
